@@ -19,7 +19,7 @@ TEST_COV_FLAGS = -ftest-coverage -fprofile-arcs
 
 noinst_DATA = bes.conf
 
-CLEANFILES = *.log *.sum site.exp gmon.*
+CLEANFILES = *.log *.sum site.exp gmon.* w10n_handlerTest
 
 EXTRA_DIST = baselines w10n_handlerTest.at $(TESTSUITE) atlocal.in \
 $(srcdir)/package.m4 bes.conf.in bes.conf.modules.in 
