@@ -37,9 +37,9 @@ TESTS = $(UNIT_TESTS)
 
 UNIT_TESTS = W10nTest
 
-SRCS = ../w10n_utils.cc
+OBJS = ../w10n_utils.o
 
 W10nTest_SOURCES = W10nTest.cc $(SRCS)
-W10nTest_LDADD = $(LIBADD)
+W10nTest_LDADD = $(OBJS) $(LIBADD)
 
 noinst_HEADERS = test_config.h
