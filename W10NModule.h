@@ -1,6 +1,6 @@
 // -*- mode: c++; c-basic-offset:4 -*-
 //
-// w10n_utils.h
+// W10NModule.h
 //
 // This file is part of BES w10n handler
 //
@@ -25,31 +25,22 @@
 // Please read the full copyright statement in the file COPYRIGHT_URI.
 //
 
-#ifndef E_w10n_util_h
-#define E_w10n_util_h 1
+#ifndef A_BESDapModule_H
+#define A_BESDapModule_H 1
 
 
+#include "BESAbstractModule.h"
 
-#include <string>
-#include <list>
-#include <iostream>
+class W10NModule : public BESAbstractModule
+{
+public:
+	W10NModule() {}
+    virtual		    	~W10NModule() {}
+    virtual void		initialize( const string &modname ) ;
+    virtual void		terminate( const string &modname ) ;
 
-using std::string ;
-using std::list ;
-using std::ostream ;
+    virtual void		dump( ostream &strm ) const ;
+} ;
 
-namespace w10n {
-    /** Check if the specified path is valid **/
-    void eval_w10n_resourceId(
-    					const string &w10nResourceId,
-					    const string &catalogRoot,
-					    const bool follow_sym_links,
-						string &validPath,
-						bool &isFile,
-						bool &isDir,
-						string &remainder
-						);
-} // namespace w10n
-
-#endif // E_w10n_util_h
+#endif // A_BESDapModule_H
 

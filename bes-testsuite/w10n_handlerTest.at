@@ -29,7 +29,7 @@ m4_define([AT_BESCMD_RESPONSE_TEST],
 ])
 
 
-#AT_BESCMD_RESPONSE_TEST([fnoc1_abstract_object_METADATA.bescmd])
+AT_BESCMD_RESPONSE_TEST([w10n_test_00.bescmd])
 #AT_BESCMD_RESPONSE_TEST([fnoc1_abstract_object_DATA.bescmd])
 #AT_BESCMD_RESPONSE_TEST([fnoc1_instance_object_METADATA.bescmd])
 #AT_BESCMD_RESPONSE_TEST([fnoc1_instance_object_DATA.bescmd])
