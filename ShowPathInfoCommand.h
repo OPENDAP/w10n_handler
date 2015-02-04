@@ -5,11 +5,11 @@
 #include "BESXMLCommand.h"
 #include "BESDataHandlerInterface.h"
 
-class W10NInfoCommand : public BESXMLCommand
+class ShowPathInfoCommand : public BESXMLCommand
 {
 public:
-	                    W10NInfoCommand( const BESDataHandlerInterface &base_dhi ) ;
-    virtual		       ~W10NInfoCommand() {}
+	ShowPathInfoCommand( const BESDataHandlerInterface &base_dhi ) ;
+    virtual		       ~ShowPathInfoCommand() {}
 
     virtual void		parse_request( xmlNode *node ) ;
 

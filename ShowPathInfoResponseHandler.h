@@ -43,12 +43,12 @@
  * @see BESContainer
  * @see BESTransmitter
  */
-class W10NResponseHandler : public BESResponseHandler
+class ShowPathInfoResponseHandler : public BESResponseHandler
 {
 private:
 public:
-	W10NResponseHandler( const string &name );
-    virtual	~W10NResponseHandler( void ) ;
+	ShowPathInfoResponseHandler( const string &name );
+    virtual	~ShowPathInfoResponseHandler( void ) ;
 
     virtual void		execute( BESDataHandlerInterface &dhi ) ;
     virtual void		transmit( BESTransmitter *transmitter,
@@ -56,7 +56,7 @@ public:
 
     virtual void		dump( ostream &strm ) const ;
 
-    static BESResponseHandler *W10NResponseBuilder( const string &name ) ;
+    static BESResponseHandler *ShowPathInfoResponseBuilder( const string &name ) ;
 };
 
 #endif // I_W10NResponseHandler_h

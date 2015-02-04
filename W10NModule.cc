@@ -33,8 +33,8 @@
 
 #include "W10NModule.h"
 #include "W10NNames.h"
-#include "W10NResponseHandler.h"
-#include "W10NInfoCommand.h"
+#include "ShowPathInfoResponseHandler.h"
+#include "ShowPathInfoCommand.h"
 #include "w10n_utils.h"
 
 
@@ -45,10 +45,10 @@ W10NModule::initialize( const string &modname )
     BESDEBUG(W10N_DEBUG_KEY, "Initializing w10n Modules:" << endl ) ;
 
     BESDEBUG( W10N_DEBUG_KEY, "    adding " << SHOW_PATH_INFO_RESPONSE_STR << " command" << endl ) ;
-    BESXMLCommand::add_command( SHOW_PATH_INFO_RESPONSE_STR, W10NInfoCommand::CommandBuilder ) ;
+    BESXMLCommand::add_command( SHOW_PATH_INFO_RESPONSE_STR, ShowPathInfoCommand::CommandBuilder ) ;
 
     BESDEBUG(W10N_DEBUG_KEY, "    adding " << SHOW_PATH_INFO_RESPONSE << " response handler" << endl ) ;
-    BESResponseHandlerList::TheList()->add_handler( SHOW_PATH_INFO_RESPONSE, W10NResponseHandler::W10NResponseBuilder ) ;
+    BESResponseHandlerList::TheList()->add_handler( SHOW_PATH_INFO_RESPONSE, ShowPathInfoResponseHandler::ShowPathInfoResponseBuilder ) ;
 
 
     BESDEBUG(W10N_DEBUG_KEY, "Done Initializing w10n Modules." << endl ) ;

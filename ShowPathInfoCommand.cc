@@ -1,6 +1,6 @@
 
 
-#include "W10NInfoCommand.h"
+#include "ShowPathInfoCommand.h"
 #include "W10NNames.h"
 #include "BESDataNames.h"
 #include "BESDebug.h"
@@ -10,7 +10,7 @@
 
 
 
-W10NInfoCommand::W10NInfoCommand( const BESDataHandlerInterface &base_dhi )
+ShowPathInfoCommand::ShowPathInfoCommand( const BESDataHandlerInterface &base_dhi )
     : BESXMLCommand( base_dhi )
 {
 }
@@ -22,7 +22,7 @@ W10NInfoCommand::W10NInfoCommand( const BESDataHandlerInterface &base_dhi )
  * @param node xml2 element node pointer
  */
 void
-W10NInfoCommand::parse_request( xmlNode *node )
+ShowPathInfoCommand::parse_request( xmlNode *node )
 {
     string name ;
     string value ;
@@ -62,9 +62,9 @@ W10NInfoCommand::parse_request( xmlNode *node )
  * @param strm C++ i/o stream to dump the information to
  */
 void
-W10NInfoCommand::dump( ostream &strm ) const
+ShowPathInfoCommand::dump( ostream &strm ) const
 {
-    strm << BESIndent::LMarg << "W10NXMLCatalogCommand::dump - ("
+    strm << BESIndent::LMarg << "ShowPathInfoCommand::dump - ("
 			     << (void *)this << ")" << endl ;
     BESIndent::Indent() ;
     BESXMLCommand::dump( strm ) ;
@@ -72,8 +72,8 @@ W10NInfoCommand::dump( ostream &strm ) const
 }
 
 BESXMLCommand *
-W10NInfoCommand::CommandBuilder( const BESDataHandlerInterface &base_dhi )
+ShowPathInfoCommand::CommandBuilder( const BESDataHandlerInterface &base_dhi )
 {
-    return new W10NInfoCommand( base_dhi ) ;
+    return new ShowPathInfoCommand( base_dhi ) ;
 }
 

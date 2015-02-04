@@ -31,13 +31,13 @@ libw10n_handler_la_SOURCES = $(W10N_SRC) $(W10N_HDR)
 libw10n_handler_la_LDFLAGS = -avoid-version -module 
 libw10n_handler_la_LIBADD = $(LIBADD)
 
-W10N_SRC = w10n_utils.cc W10NModule.cc W10NResponseHandler.cc W10NInfoCommand.cc 
+W10N_SRC = w10n_utils.cc W10NModule.cc ShowPathInfoResponseHandler.cc ShowPathInfoCommand.cc 
 
-W10N_HDR = w10n_utils.h  W10NModule.h  W10NResponseHandler.h  W10NInfoCommand.h
+W10N_HDR = w10n_utils.h  W10NModule.h  ShowPathInfoResponseHandler.h  ShowPathInfoCommand.h
 
 EXTRA_DIST = data COPYING w10n.conf.in w10n_handler.spec doxy.conf
 
-CLEANFILES = *~ w10n.conf
+CLEANFILES = *~ w10n.conf bes.log
 
 install-data-local: w10n.conf
 	@currdate=`date +"%y%m%d%H%M"`; \

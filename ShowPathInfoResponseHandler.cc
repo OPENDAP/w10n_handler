@@ -25,7 +25,7 @@
 // Please read the full copyright statement in the file COPYRIGHT_URI.
 //
 
-#include "W10NResponseHandler.h"
+#include "ShowPathInfoResponseHandler.h"
 #include "W10NNames.h"
 #include "w10n_utils.h"
 #include "BESDebug.h"
@@ -45,11 +45,11 @@
 #include "BESSyntaxUserError.h"
 #include "BESNotFoundError.h"
 
-W10NResponseHandler::W10NResponseHandler( const string &name ): BESResponseHandler( name )
+ShowPathInfoResponseHandler::ShowPathInfoResponseHandler( const string &name ): BESResponseHandler( name )
 {
 }
 
-W10NResponseHandler::~W10NResponseHandler( )
+ShowPathInfoResponseHandler::~ShowPathInfoResponseHandler( )
 {
 }
 
@@ -63,9 +63,9 @@ W10NResponseHandler::~W10NResponseHandler( )
  * @see BESInfo
  * @see BESRequestHandlerList
  */
-void W10NResponseHandler::execute(BESDataHandlerInterface &dhi) {
+void ShowPathInfoResponseHandler::execute(BESDataHandlerInterface &dhi) {
 
-    BESDEBUG(W10N_DEBUG_KEY, "W10NResponseHandler::execute() - BEGIN ############################################################## BEGIN" << endl ) ;
+    BESDEBUG(W10N_DEBUG_KEY, "ShowPathInfoResponseHandler::execute() - BEGIN ############################################################## BEGIN" << endl ) ;
 
     BESInfo *info = BESInfoList::TheList()->build_info();
     _response = info;
@@ -118,7 +118,7 @@ void W10NResponseHandler::execute(BESDataHandlerInterface &dhi) {
         container = "/";
 
 
-    BESDEBUG(W10N_DEBUG_KEY, "W10NResponseHandler::execute() - w10n_id: " << container << endl ) ;
+    BESDEBUG(W10N_DEBUG_KEY, "ShowPathInfoResponseHandler::execute() - w10n_id: " << container << endl ) ;
 
     info->begin_response(SHOW_PATH_INFO_RESPONSE_STR, dhi);
     //string coi = dhi.data[CATALOG_OR_INFO];
@@ -189,7 +189,7 @@ void W10NResponseHandler::execute(BESDataHandlerInterface &dhi) {
     info->end_response();
 
 
-    BESDEBUG(W10N_DEBUG_KEY, "W10NResponseHandler::execute() - END ################################################################## END" << endl ) ;
+    BESDEBUG(W10N_DEBUG_KEY, "ShowPathInfoResponseHandler::execute() - END ################################################################## END" << endl ) ;
 
 }
 
@@ -206,7 +206,7 @@ void W10NResponseHandler::execute(BESDataHandlerInterface &dhi) {
  * @see BESDataHandlerInterface
  */
 void
-W10NResponseHandler::transmit( BESTransmitter *transmitter,
+ShowPathInfoResponseHandler::transmit( BESTransmitter *transmitter,
                                BESDataHandlerInterface &dhi )
 {
     if( _response )
@@ -225,9 +225,9 @@ W10NResponseHandler::transmit( BESTransmitter *transmitter,
  * @param strm C++ i/o stream to dump the information to
  */
 void
-W10NResponseHandler::dump( ostream &strm ) const
+ShowPathInfoResponseHandler::dump( ostream &strm ) const
 {
-    strm << BESIndent::LMarg << "W10NResponseHandler::dump - ("
+    strm << BESIndent::LMarg << "ShowPathInfoResponseHandler::dump - ("
 			     << (void *)this << ")" << std::endl ;
     BESIndent::Indent() ;
     BESResponseHandler::dump( strm ) ;
@@ -235,8 +235,8 @@ W10NResponseHandler::dump( ostream &strm ) const
 }
 
 BESResponseHandler *
-W10NResponseHandler::W10NResponseBuilder( const string &name )
+ShowPathInfoResponseHandler::ShowPathInfoResponseBuilder( const string &name )
 {
-    return new W10NResponseHandler( name ) ;
+    return new ShowPathInfoResponseHandler( name ) ;
 }
 
