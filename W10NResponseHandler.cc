@@ -36,6 +36,7 @@
 #include "BESRequestHandlerList.h"
 #include "BESRequestHandler.h"
 #include "BESNames.h"
+#include "BESDapNames.h"
 #include "BESDataNames.h"
 #include "BESCatalogList.h"
 #include "BESCatalog.h"
@@ -139,7 +140,42 @@ void W10NResponseHandler::execute(BESDataHandlerInterface &dhi) {
 			isDir,
 			remainder);
 
+
+    // Now that we know what part of the path is actually something
+    // we can access, find out if the BES sees it as a dataset
+    bool isData = false;
+
+    // If the valid path is an empty string then we KNOW it's not a dataset
+    if(validPath.length()!=0){
+
+		// Get the catalog entry.
+		BESCatalogEntry *entry = 0;
+		string coi = dhi.data[CATALOG];
+		entry = defcat->show_catalog(validPath, coi, entry);
+		if (!entry) {
+			string err = (string) "Failed to find the validPath node " + validPath +
+					" this should not be possible. Some thing BAD is happening.";
+			throw BESInternalError(err, __FILE__, __LINE__);
+		}
+
+		// Retrieve the valid services list
+		list<string> services = entry->get_service_list();
+
+		// See if there's an OPENDAP_SERVICE available for the node.
+		if (services.size()) {
+			list<string>::const_iterator si = services.begin();
+			list<string>::const_iterator se = services.end();
+			for (; si != se; si++) {
+				if((*si) == OPENDAP_SERVICE)
+					isData = true;
+			}
+		}
+    }
+
+
+
     map<string,string> path_attrs;
+    path_attrs["isData"] = isData?"true":"false";
     path_attrs["isFile"] = isFile?"true":"false";
     path_attrs["isDir"]  = isDir?"true":"false";
 
@@ -156,6 +192,7 @@ void W10NResponseHandler::execute(BESDataHandlerInterface &dhi) {
     BESDEBUG(W10N_DEBUG_KEY, "W10NResponseHandler::execute() - END ################################################################## END" << endl ) ;
 
 }
+
 
 /** @brief transmit the response object built by the execute command
  * using the specified transmitter object
