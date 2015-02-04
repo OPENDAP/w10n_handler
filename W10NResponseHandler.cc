@@ -64,8 +64,7 @@ W10NResponseHandler::~W10NResponseHandler( )
  */
 void W10NResponseHandler::execute(BESDataHandlerInterface &dhi) {
 
-    BESDEBUG(W10N_DEBUG_KEY, "################################################################" << endl ) ;
-    BESDEBUG(W10N_DEBUG_KEY, "W10NResponseHandler::execute() - BEGIN" << endl ) ;
+    BESDEBUG(W10N_DEBUG_KEY, "W10NResponseHandler::execute() - BEGIN ############################################################## BEGIN" << endl ) ;
 
     BESInfo *info = BESInfoList::TheList()->build_info();
     _response = info;
@@ -118,7 +117,8 @@ void W10NResponseHandler::execute(BESDataHandlerInterface &dhi) {
         container = "/";
 
 
-    BESDEBUG(W10N_DEBUG_KEY, "W10NResponseHandler::execute() - container: " << container << endl ) ;
+    BESDEBUG(W10N_DEBUG_KEY, "W10NResponseHandler::execute() - w10n_id: " << container << endl ) ;
+
     info->begin_response(W10N_INFO_RESPONSE_STR, dhi);
     //string coi = dhi.data[CATALOG_OR_INFO];
 
@@ -153,8 +153,7 @@ void W10NResponseHandler::execute(BESDataHandlerInterface &dhi) {
     info->end_response();
 
 
-    BESDEBUG(W10N_DEBUG_KEY, "W10NResponseHandler::execute() - END" << endl ) ;
-    BESDEBUG(W10N_DEBUG_KEY, "################################################################" << endl ) ;
+    BESDEBUG(W10N_DEBUG_KEY, "W10NResponseHandler::execute() - END ################################################################## END" << endl ) ;
 
 }
 

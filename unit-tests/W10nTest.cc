@@ -86,12 +86,20 @@ private:
 	void eval_w10n_id(string w10nResourceId, string catalogRoot, string expectedValidPath, string expectedRemainder, bool follow_sym_links){
     	string validPath;
     	string remainder;
+    	bool isDir, isFile;
     	DBG(cerr << "eval_w10n_id() - ##########################################################" << endl);
     	DBG(cerr << "eval_w10n_id() - w10nResourceId:     " << w10nResourceId << endl);
     	DBG(cerr << "eval_w10n_id() - expectedValidPath:  " << expectedValidPath << endl);
     	DBG(cerr << "eval_w10n_id() - expectedRemainder:  " << expectedRemainder << endl);
     	DBG(cerr << "eval_w10n_id() - follow_sym_links:   " << (follow_sym_links?"true":"false") << endl);
-    	w10n::eval_w10n_resourceId(w10nResourceId,catalogRoot, validPath, remainder, follow_sym_links);
+    	w10n::eval_w10n_resourceId(
+    			w10nResourceId,
+				catalogRoot,
+				follow_sym_links,
+				validPath,
+				isFile,
+				isDir,
+				remainder);
     	DBG(cerr << "eval_w10n_id() - Returned validPath: " << validPath << endl);
     	DBG(cerr << "eval_w10n_id() - Returned remainder: " << remainder << endl);
 		CPPUNIT_ASSERT(validPath == expectedValidPath);
