@@ -28,7 +28,7 @@ W10NInfoCommand::parse_request( xmlNode *node )
     string value ;
     map<string, string> props ;
     BESXMLUtils::GetNodeInfo( node, name, value, props ) ;
-    if( name != W10N_INFO_RESPONSE_STR )
+    if( name != SHOW_PATH_INFO_RESPONSE_STR )
     {
 	string err = "The specified command " + name
 		     + " is not a show w10n command" ;
@@ -36,8 +36,8 @@ W10NInfoCommand::parse_request( xmlNode *node )
     }
 
     // the the action is to show the w10n info response
-    _dhi.action = W10N_INFO_RESPONSE ;
-	_dhi.data[W10N_INFO_RESPONSE] = W10N_INFO_RESPONSE ;
+    _dhi.action = SHOW_PATH_INFO_RESPONSE ;
+	_dhi.data[SHOW_PATH_INFO_RESPONSE] = SHOW_PATH_INFO_RESPONSE ;
 	_str_cmd = "show w10n" ;
 
     // node is an optional property, so could be empty string

@@ -120,13 +120,13 @@ void W10NResponseHandler::execute(BESDataHandlerInterface &dhi) {
 
     BESDEBUG(W10N_DEBUG_KEY, "W10NResponseHandler::execute() - w10n_id: " << container << endl ) ;
 
-    info->begin_response(W10N_INFO_RESPONSE_STR, dhi);
+    info->begin_response(SHOW_PATH_INFO_RESPONSE_STR, dhi);
     //string coi = dhi.data[CATALOG_OR_INFO];
 
-    map<string,string> w10n_attrs;
-    w10n_attrs["id"] = container;
+    map<string,string> pathInfoAttrs;
+    pathInfoAttrs[PATH] = container;
 
-    info->begin_tag("w10n",&w10n_attrs);
+    info->begin_tag(PATH_INFO_RESPONSE,&pathInfoAttrs);
 
     string validPath, remainder;
     bool isFile, isDir;
@@ -174,15 +174,15 @@ void W10NResponseHandler::execute(BESDataHandlerInterface &dhi) {
 
 
 
-    map<string,string> path_attrs;
-    path_attrs["isData"] = isData?"true":"false";
-    path_attrs["isFile"] = isFile?"true":"false";
-    path_attrs["isDir"]  = isDir?"true":"false";
+    map<string,string> validPathAttrs;
+    validPathAttrs[IS_DATA] = isData?"true":"false";
+    validPathAttrs[IS_FILE] = isFile?"true":"false";
+    validPathAttrs[IS_DIR]  = isDir?"true":"false";
 
-    info->add_tag("validPath",validPath, &path_attrs);
-    info->add_tag("remainder",remainder);
+    info->add_tag(VALID_PATH,validPath, &validPathAttrs);
+    info->add_tag(REMAINDER,remainder);
 
-    info->end_tag("w10n");
+    info->end_tag(PATH_INFO_RESPONSE);
 
 
     // end the response object

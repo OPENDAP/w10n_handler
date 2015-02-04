@@ -44,11 +44,11 @@ W10NModule::initialize( const string &modname )
 {
     BESDEBUG(W10N_DEBUG_KEY, "Initializing w10n Modules:" << endl ) ;
 
-    BESDEBUG( W10N_DEBUG_KEY, "    adding " << W10N_INFO_RESPONSE_STR << " command" << endl ) ;
-    BESXMLCommand::add_command( W10N_INFO_RESPONSE_STR, W10NInfoCommand::CommandBuilder ) ;
+    BESDEBUG( W10N_DEBUG_KEY, "    adding " << SHOW_PATH_INFO_RESPONSE_STR << " command" << endl ) ;
+    BESXMLCommand::add_command( SHOW_PATH_INFO_RESPONSE_STR, W10NInfoCommand::CommandBuilder ) ;
 
-    BESDEBUG(W10N_DEBUG_KEY, "    adding " << W10N_INFO_RESPONSE << " response handler" << endl ) ;
-    BESResponseHandlerList::TheList()->add_handler( W10N_INFO_RESPONSE, W10NResponseHandler::W10NResponseBuilder ) ;
+    BESDEBUG(W10N_DEBUG_KEY, "    adding " << SHOW_PATH_INFO_RESPONSE << " response handler" << endl ) ;
+    BESResponseHandlerList::TheList()->add_handler( SHOW_PATH_INFO_RESPONSE, W10NResponseHandler::W10NResponseBuilder ) ;
 
 
     BESDEBUG(W10N_DEBUG_KEY, "Done Initializing w10n Modules." << endl ) ;
@@ -59,7 +59,7 @@ W10NModule::terminate( const string &modname )
 {
     BESDEBUG(W10N_DEBUG_KEY, "Removing w10n Modules:" << endl ) ;
 
-    BESResponseHandlerList::TheList()->remove_handler( W10N_INFO_RESPONSE ) ;
+    BESResponseHandlerList::TheList()->remove_handler( SHOW_PATH_INFO_RESPONSE ) ;
 
 
     BESDEBUG(W10N_DEBUG_KEY, "Done Removing w10n Modules." << endl ) ;
