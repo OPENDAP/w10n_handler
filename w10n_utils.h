@@ -40,7 +40,7 @@ using std::ostream ;
 
 namespace w10n {
     /** Check if the specified path is valid **/
-    void eval_w10n_resourceId(
+    void eval_resource_path(
     					const string &w10nResourceId,
 					    const string &catalogRoot,
 					    const bool follow_sym_links,

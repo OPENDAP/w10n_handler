@@ -131,7 +131,7 @@ void ShowPathInfoResponseHandler::execute(BESDataHandlerInterface &dhi) {
     string validPath, remainder;
     bool isFile, isDir;
 
-    w10n::eval_w10n_resourceId(
+    w10n::eval_resource_path(
     		container,
     		utils->get_root_dir(),
 			utils->follow_sym_links(),

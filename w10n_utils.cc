@@ -59,7 +59,7 @@ using std::endl;
 
 namespace w10n {
 
-void eval_w10n_resourceId(
+void eval_resource_path(
 		const string &w10nResourceId,
 		const string &catalogRoot,
 		const bool follow_sym_links,
@@ -68,8 +68,8 @@ void eval_w10n_resourceId(
 		bool &isDir,
 		string &remainder) {
 
-	BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - CatalogRoot: "<< catalogRoot << endl);
-	BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - w10n resourceID: "<< w10nResourceId << endl);
+	BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - CatalogRoot: "<< catalogRoot << endl);
+	BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - w10n resourceID: "<< w10nResourceId << endl);
 
 
 	// Rather than have two basically identical code paths for the two cases (follow and !follow symlinks)
@@ -77,11 +77,11 @@ void eval_w10n_resourceId(
 	// function for the eval operation.
 	int (*ye_old_stat_function)(const char *pathname, struct stat *buf);
 	if(follow_sym_links){
-		BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - Using 'stat' function (follow_sym_links = true)" << endl);
+		BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - Using 'stat' function (follow_sym_links = true)" << endl);
 		ye_old_stat_function = &stat;
 	}
 	else {
-		BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - Using 'lstat' function (follow_sym_links = false)" << endl);
+		BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - Using 'lstat' function (follow_sym_links = false)" << endl);
 		ye_old_stat_function = &lstat;
 	}
 
@@ -89,7 +89,7 @@ void eval_w10n_resourceId(
 	// if nothing is passed in path, then the path checks out since root is
 	// assumed to be valid.
 	if (w10nResourceId == ""){
-		BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - w10n resourceID is empty" << endl);
+		BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - w10n resourceID is empty" << endl);
 
 		validPath = "";
 		remainder = "";
@@ -100,7 +100,7 @@ void eval_w10n_resourceId(
 	// not allowed.
 	string::size_type dotdot = w10nResourceId.find("..");
 	if (dotdot != string::npos) {
-		BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - ERROR: w10n resourceID '" << w10nResourceId <<"' contains the substring '..' This is Forbidden." << endl);
+		BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - ERROR: w10n resourceID '" << w10nResourceId <<"' contains the substring '..' This is Forbidden." << endl);
 		string s = (string) "Invalid node name '" + w10nResourceId +"' ACCESS IS FORBIDDEN";
 		throw BESForbiddenError(s, __FILE__, __LINE__);
 	}
@@ -141,7 +141,7 @@ void eval_w10n_resourceId(
 	while (!done) {
 		size_t slash = rem.find('/');
 		if (slash == string::npos) {
-			BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - Checking final path component: " << rem << endl);
+			BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - Checking final path component: " << rem << endl);
 			fullpath = fullpath + "/" + rem;
 			checking = validPath + "/" + rem;
 			rem ="";
@@ -152,8 +152,8 @@ void eval_w10n_resourceId(
 			rem = rem.substr(slash + 1, rem.length() - slash);
 		}
 
-		BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - fullpath: "<< fullpath << endl);
-		BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - checking: "<< checking << endl);
+		BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - fullpath: "<< fullpath << endl);
+		BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - checking: "<< checking << endl);
 
 
 		struct stat sb;
@@ -171,13 +171,13 @@ void eval_w10n_resourceId(
 			} else {
 				error = error + "unknown access error";
 			}
-			BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - error: "<< error << "   errno: " << errno << endl);
+			BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - error: "<< error << "   errno: " << errno << endl);
 
 			// ENOENT means that the node wasn't found. Otherwise, access
 			// is denied for some reason
 			if (errsv == ENOENT || errsv == ENOTDIR) {
-				BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - validPath: "<< validPath << endl);
-				BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - remainder: "<< remainder << endl);
+				BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - validPath: "<< validPath << endl);
+				BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - remainder: "<< remainder << endl);
 				return;
 			} else {
 				throw BESForbiddenError(error, __FILE__, __LINE__);
@@ -187,17 +187,17 @@ void eval_w10n_resourceId(
 			remainder = rem;
 
 	        if (S_ISREG(sb.st_mode)) {
-	    		BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - '"<< checking << "' Is regular file." << endl);
+	    		BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - '"<< checking << "' Is regular file." << endl);
 	    		isFile = true;
 	    		isDir = false;
 	        }
 	        else if (S_ISDIR(sb.st_mode)) {
-	    		BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - '"<< checking << "' Is directory." << endl);
+	    		BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - '"<< checking << "' Is directory." << endl);
 	    		isFile = false;
 	    		isDir = true;
 	        }
 	        else if (S_ISLNK(sb.st_mode)) {
-	    		BESDEBUG(W10N_DEBUG_KEY,"eval_w10n_resourceId() - '"<< checking << "' Is symbolic Link." << endl);
+	    		BESDEBUG(W10N_DEBUG_KEY,"eval_resource_path() - '"<< checking << "' Is symbolic Link." << endl);
 				string error = "Service not configured to traverse symbolic links as embodied by the node '"
 						+ checking + "' ACCESS IS FORBIDDEN";
 				throw BESForbiddenError(error, __FILE__, __LINE__);

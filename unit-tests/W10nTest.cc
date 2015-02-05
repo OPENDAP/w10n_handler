@@ -83,17 +83,17 @@ private:
 	    return string(&buffer[0]);
 	}
 
-	void eval_w10n_id(string w10nResourceId, string catalogRoot, string expectedValidPath, string expectedRemainder, bool follow_sym_links){
+	void eval_w10n_id(string resourceId, string catalogRoot, string expectedValidPath, string expectedRemainder, bool follow_sym_links){
     	string validPath;
     	string remainder;
     	bool isDir, isFile;
     	DBG(cerr << "eval_w10n_id() - ##########################################################" << endl);
-    	DBG(cerr << "eval_w10n_id() - w10nResourceId:     " << w10nResourceId << endl);
+    	DBG(cerr << "eval_w10n_id() - ResourceId:         " <<  resourceId << endl);
     	DBG(cerr << "eval_w10n_id() - expectedValidPath:  " << expectedValidPath << endl);
     	DBG(cerr << "eval_w10n_id() - expectedRemainder:  " << expectedRemainder << endl);
     	DBG(cerr << "eval_w10n_id() - follow_sym_links:   " << (follow_sym_links?"true":"false") << endl);
-    	w10n::eval_w10n_resourceId(
-    			w10nResourceId,
+    	w10n::eval_resource_path(
+    			resourceId,
 				catalogRoot,
 				follow_sym_links,
 				validPath,
