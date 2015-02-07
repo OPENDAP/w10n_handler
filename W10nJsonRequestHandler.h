@@ -1,10 +1,10 @@
 // -*- mode: c++; c-basic-offset:4 -*-
 //
-// w10n_utils.h
+// FoJsonRequestHandler.h
 //
-// This file is part of BES w10n handler
+// This file is part of BES JSON File Out Module
 //
-// Copyright (c) 2015v OPeNDAP, Inc.
+// Copyright (c) 2014 OPeNDAP, Inc.
 // Author: Nathan Potter <ndp@opendap.org>
 //
 // This library is free software; you can redistribute it and/or
@@ -22,43 +22,33 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 //
 // You can contact OPeNDAP, Inc. at PO Box 112, Saunderstown, RI. 02874-0112.
+// (c) COPYRIGHT URI/MIT 1995-1999
 // Please read the full copyright statement in the file COPYRIGHT_URI.
 //
 
-#ifndef E_w10n_util_h
-#define E_w10n_util_h 1
+#ifndef I_W10nJsonRequestHandler_H
+#define I_W10nJsonRequestHandler_H 1
 
+#include "BESRequestHandler.h"
 
+/** @brief A Request Handler for the Fileout NetCDF request
+ *
+ * This class is used to represent the Fileout NetCDF module, including
+ * functions to build the help and version responses. Data handlers are
+ * used to build a Dap DataDDS object, so those functions are not needed
+ * here.
+ */
+class W10nJsonRequestHandler : public BESRequestHandler
+{
+public:
+	W10nJsonRequestHandler( const string &name ) ;
+    virtual ~W10nJsonRequestHandler( void ) ;
 
-#include <string>
-#include <list>
-#include <iostream>
+    virtual void	dump( ostream &strm ) const ;
 
-#include <Array.h>
+    static bool		build_help( BESDataHandlerInterface &dhi ) ;
+    static bool		build_version( BESDataHandlerInterface &dhi ) ;
+};
 
-using std::string ;
-using std::list ;
-using std::ostream ;
-
-namespace w10n {
-    /** Check if the specified path is valid **/
-    void eval_resource_path(
-    					const string &w10nResourceId,
-					    const string &catalogRoot,
-					    const bool follow_sym_links,
-						string &validPath,
-						bool &isFile,
-						bool &isDir,
-						string &remainder
-						);
-
-
-    std::string backslash_escape(std::string source, char char_to_escape);
-
-    long computeConstrainedShape(libdap::Array *a, std::vector<unsigned int> *shape );
-
-
-} // namespace w10n
-
-#endif // E_w10n_util_h
+#endif /* I_W10nJsonRequestHandler_H */
 

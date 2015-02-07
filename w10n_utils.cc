@@ -210,5 +210,61 @@ void eval_resource_path(
 }
 
 
+
+/**
+ * Replace every occurrence of 'char_to_escape' with the same preceded
+ * by the backslash '\' character.
+ */
+std::string backslash_escape(std::string source, char char_to_escape){
+	std::string escaped_result = source;
+	if(source.find(char_to_escape) != string::npos ){
+		size_t found = 0;
+		for(size_t i=0; i< source.length() ; i++){
+			if(source[i] == char_to_escape){
+				escaped_result.insert( i + found++, "\\");
+			}
+		}
+	}
+	return escaped_result;
+}
+
+
+long computeConstrainedShape(libdap::Array *a, std::vector<unsigned int> *shape ){
+    BESDEBUG(W10N_DEBUG_KEY, "w10n::computeConstrainedShape() - BEGIN. Array name: "<< a->name() << endl);
+
+    libdap::Array::Dim_iter dIt;
+    unsigned int start;
+    unsigned int stride;
+    unsigned int stop;
+
+    unsigned int dimSize = 1;
+    int dimNum = 0;
+    long totalSize = 1;
+
+    BESDEBUG(W10N_DEBUG_KEY, "w10n::computeConstrainedShape() - Array has " << a->dimensions(true) << " dimensions."<< endl);
+
+    stringstream msg;
+
+    for(dIt = a->dim_begin() ; dIt!=a->dim_end() ;dIt++){
+        BESDEBUG(W10N_DEBUG_KEY, "w10n::computeConstrainedShape() - Processing dimension '" << a->dimension_name(dIt)<< "'. (dim# "<< dimNum << ")"<< endl);
+        start  = a->dimension_start(dIt, true);
+        stride = a->dimension_stride(dIt, true);
+        stop   = a->dimension_stop(dIt, true);
+        BESDEBUG(W10N_DEBUG_KEY, "w10n::computeConstrainedShape() - start: " << start << "  stride: " << stride << "  stop: "<<stop<< endl);
+
+        dimSize = 1 + ( (stop - start) / stride);
+        BESDEBUG(W10N_DEBUG_KEY, "w10n::computeConstrainedShape() - dimSize: " << dimSize << endl);
+
+        (*shape)[dimNum++] = dimSize;
+        totalSize *= dimSize;
+    }
+    BESDEBUG(W10N_DEBUG_KEY, "w10n::computeConstrainedShape() - totalSize: " << totalSize << endl);
+    BESDEBUG(W10N_DEBUG_KEY, "w10n::computeConstrainedShape() - END." << endl);
+
+    return totalSize;
+}
+
+
+
 } // namespace w10n
 

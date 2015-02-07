@@ -29,14 +29,20 @@
 
 #include "BESDebug.h"
 #include "BESResponseHandlerList.h"
+#include "BESReturnManager.h"
+#include "BESRequestHandler.h"
+#include "BESRequestHandlerList.h"
 #include "BESXMLCommand.h"
 
 #include "W10NModule.h"
 #include "W10NNames.h"
+#include "W10nJsonTransmitter.h"
+#include "W10nJsonRequestHandler.h"
 #include "ShowPathInfoResponseHandler.h"
 #include "ShowPathInfoCommand.h"
 #include "w10n_utils.h"
 
+#define RETURNAS_W10N "w10n"
 
 
 void
@@ -44,13 +50,22 @@ W10NModule::initialize( const string &modname )
 {
     BESDEBUG(W10N_DEBUG_KEY, "Initializing w10n Modules:" << endl ) ;
 
+    BESRequestHandler *handler = new W10nJsonRequestHandler(modname);
+    BESRequestHandlerList::TheList()->add_handler(modname, handler);
+
+
+
     BESDEBUG( W10N_DEBUG_KEY, "    adding " << SHOW_PATH_INFO_RESPONSE_STR << " command" << endl ) ;
     BESXMLCommand::add_command( SHOW_PATH_INFO_RESPONSE_STR, ShowPathInfoCommand::CommandBuilder ) ;
 
     BESDEBUG(W10N_DEBUG_KEY, "    adding " << SHOW_PATH_INFO_RESPONSE << " response handler" << endl ) ;
     BESResponseHandlerList::TheList()->add_handler( SHOW_PATH_INFO_RESPONSE, ShowPathInfoResponseHandler::ShowPathInfoResponseBuilder ) ;
 
+    BESDEBUG( W10N_DEBUG_KEY, "    adding " << RETURNAS_W10N << " transmitter" << endl );
+    BESReturnManager::TheManager()->add_transmitter(RETURNAS_W10N, new W10nJsonTransmitter());
 
+
+    BESDebug::Register(W10N_DEBUG_KEY);
     BESDEBUG(W10N_DEBUG_KEY, "Done Initializing w10n Modules." << endl ) ;
 }
 
