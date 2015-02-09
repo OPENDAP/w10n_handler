@@ -3,6 +3,8 @@
 
 #define W10N_DEBUG_KEY "w10n"
 
+#define W10N_META_KEY "w10nMeta"
+
 
 #define SHOW_PATH_INFO_RESPONSE "show.pathInfo"
 #define SHOW_PATH_INFO_RESPONSE_STR "showPathInfo"

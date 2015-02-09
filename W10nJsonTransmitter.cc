@@ -232,6 +232,9 @@ void W10nJsonTransmitter::send_metadata(BESResponseObject *obj, BESDataHandlerIn
         throw BESInternalError("Failed to parse the constraint expression: Unknown exception caught", __FILE__, __LINE__);
     }
 
+
+
+
     // now we need to read the data
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_metadata() - reading data into DataDDS" << endl);
 
@@ -279,13 +282,14 @@ void W10nJsonTransmitter::send_metadata(BESResponseObject *obj, BESDataHandlerIn
 #endif
 
     try {
-        W10nJsonTransform ft(dds, dhi, &o_strm /*&temp_full[0]*/);
+
+    	W10nJsonTransform ft(dds, dhi, &o_strm /*&temp_full[0]*/);
 
         ft.transform( false /* send metadata only */ );
 
         // W10nJsonTransmitter::return_temp_stream(&temp_full[0], o_strm);
     }
-#if o
+#if 0
     catch (BESError &e) {
         close(fd);
         (void) unlink(&temp_full[0]);

@@ -51,6 +51,7 @@ using std::istringstream;
 
 #include <BESDebug.h>
 #include <BESInternalError.h>
+#include <BESContextManager.h>
 
 #include <w10n_utils.h>
 
@@ -502,6 +503,13 @@ void W10nJsonTransform::transform(ostream *strm, libdap::DDS *dds, string indent
 	writeDatasetMetadata(strm, dds, child_indent);
 
 	transform_node_worker(strm, leaves,  nodes, child_indent, sendData);
+
+	bool foundIt = false;
+	string w10n_meta = BESContextManager::TheManager()->get_context(W10N_META_KEY,foundIt);
+    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::transform() - w10n_meta object: "<< w10n_meta << endl);
+
+    if(foundIt)
+    	*strm << child_indent << w10n_meta << endl;
 
 	*strm << indent << "}" << endl;
 
