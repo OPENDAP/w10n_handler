@@ -34,7 +34,9 @@
 #include <list>
 #include <iostream>
 
+#include <DDS.h>
 #include <Array.h>
+#include <Constructor.h>
 
 using std::string ;
 using std::list ;
@@ -56,6 +58,10 @@ namespace w10n {
     std::string backslash_escape(std::string source, char char_to_escape);
 
     long computeConstrainedShape(libdap::Array *a, std::vector<unsigned int> *shape );
+    void checkConstructorForW10nDataCompatibility(libdap::Constructor *constructor);
+    void checkConstrainedDDSForW10nDataCompatibility(libdap::DDS *dds);
+    bool allVariablesMarkedToSend(libdap::DDS *dds);
+    bool allVariablesMarkedToSend(libdap::Constructor *ctor);
 
 
 } // namespace w10n

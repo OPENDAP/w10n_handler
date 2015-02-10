@@ -42,6 +42,11 @@
 #include <sstream>
 #include <iostream>
 
+#include <BaseType.h>
+#include <DDS.h>
+#include <Constructor.h>
+#include <Array.h>
+
 using std::istringstream;
 using std::cout;
 using std::endl;
@@ -51,6 +56,7 @@ using std::endl;
 #include "BESForbiddenError.h"
 #include "BESNotFoundError.h"
 #include "BESInternalError.h"
+#include "BESSyntaxUserError.h"
 
 #include "w10n_utils.h"
 #include "W10NNames.h"
@@ -263,6 +269,132 @@ long computeConstrainedShape(libdap::Array *a, std::vector<unsigned int> *shape 
 
     return totalSize;
 }
+
+
+
+void checkConstrainedDDSForW10nDataCompatibility(libdap::DDS *dds){
+
+	int markedCount = 0;
+
+    for (libdap::DDS::Vars_iter i = dds->var_begin(); i != dds->var_end(); i++) {
+    	libdap::BaseType *bt = (*i);
+        if (bt->send_p()) {
+        	if(bt->is_constructor_type()){
+        		checkConstructorForW10nDataCompatibility((libdap::Constructor *)bt);
+        	}
+        	else if (bt->is_vector_type()){
+        		if(bt->var()->is_constructor_type()){
+        			string msg = "Arrays of ";
+        			msg += bt->type_name() + " are not supported by the w10n service.";
+        		    BESDEBUG(W10N_DEBUG_KEY, "w10n::checkConstrainedDDSForW10nDataCompatibility() - ERROR! " << msg << endl);
+        			throw new BESSyntaxUserError(msg , __FILE__, __LINE__);
+        		}
+        	}
+        	markedCount++;
+        }
+    }
+    if(markedCount > 1) {
+		string msg = "More than one variable is projected and that's a no-no for w10n data responses.";
+	    BESDEBUG(W10N_DEBUG_KEY, "w10n::checkConstrainedDDSForW10nDataCompatibility() - ERROR! " << msg << endl);
+		throw new BESSyntaxUserError(msg , __FILE__, __LINE__);
+    }
+
+
+
+}
+
+void checkConstructorForW10nDataCompatibility(libdap::Constructor *constructor){
+
+	int markedCount = 0;
+    for (libdap::Constructor::Vars_iter i = constructor->var_begin(); i != constructor->var_end(); i++) {
+    	libdap::BaseType *bt = (*i);
+
+        if (bt->send_p()) {
+        	if(bt->is_constructor_type()){
+        		checkConstructorForW10nDataCompatibility((libdap::Constructor *)bt);
+        	}
+        	else if (bt->is_vector_type()){
+        		if(bt->var()->is_constructor_type()){
+        			string msg = "Arrays of ";
+        			msg += bt->type_name() + " are not supported by the w10n service.";
+        		    BESDEBUG(W10N_DEBUG_KEY, "w10n::checkConstructorForW10nDataCompatibility() - ERROR! " << msg << endl);
+        			throw new BESSyntaxUserError(msg , __FILE__, __LINE__);
+        		}
+
+        	}
+    		markedCount++;
+        }
+    }
+
+    if(markedCount > 1) {
+		string msg = "More than one variable is projected and that's a no-no for w10n data responses.";
+	    BESDEBUG(W10N_DEBUG_KEY, "w10n::checkConstructorForW10nDataCompatibility() - ERROR! " << msg << endl);
+		throw new BESSyntaxUserError(msg , __FILE__, __LINE__);
+    }
+
+
+
+}
+
+
+
+bool allVariablesMarkedToSend(libdap::DDS *dds){
+
+	bool allMarked = true;
+
+	libdap::DDS::Vars_iter vi = dds->var_begin();
+	libdap::DDS::Vars_iter ve = dds->var_end();
+	for (; vi != ve; vi++) {
+		libdap::BaseType *v = *vi;
+		if (v->send_p()) {
+			if(v->is_constructor_type()){
+				allMarked = allMarked && allVariablesMarkedToSend((libdap::Constructor *)v);
+			}
+			else if(v->is_vector_type() && v->var()->is_constructor_type()){
+				allMarked = allMarked && allVariablesMarkedToSend((libdap::Constructor *)v->var());
+			}
+			else {
+				allMarked = allMarked && true;
+			}
+		}
+		else {
+			allMarked = allMarked && false;
+		}
+	}
+	return allMarked;
+
+}
+
+bool allVariablesMarkedToSend(libdap::Constructor *ctor){
+
+	bool allMarked = true;
+
+	libdap::Constructor::Vars_iter vi = ctor->var_begin();
+	libdap::Constructor::Vars_iter ve = ctor->var_end();
+	for (; vi != ve; vi++) {
+		libdap::BaseType *v = *vi;
+		if (v->send_p()) {
+			if(v->is_constructor_type()){
+				allMarked = allMarked && allVariablesMarkedToSend((libdap::Constructor *)v);
+			}
+			else if(v->is_vector_type() && v->var()->is_constructor_type()){
+				allMarked = allMarked && allVariablesMarkedToSend((libdap::Constructor *)v->var());
+			}
+			else {
+				allMarked = allMarked && true;
+			}
+		}
+		else {
+			allMarked = allMarked && false;
+		}
+	}
+	return allMarked;
+}
+
+
+
+
+
 
 
 

@@ -55,26 +55,27 @@ private:
 	std::string _indent_increment;
 
 	std::ostream *_ostrm;
+	bool          _usingTempFile;
 
-	void writeNodeMetadata(std::ostream *strm, libdap::BaseType *bt, std::string indent);
-	void writeLeafMetadata(std::ostream *strm, libdap::BaseType *bt, std::string indent);
+	//void writeNodeMetadata(std::ostream *strm, libdap::BaseType *bt, std::string indent);
+	void writeVariableMetadata(std::ostream *strm, libdap::BaseType *bt, std::string indent);
 	void writeDatasetMetadata(std::ostream *strm, libdap::DDS *dds, std::string indent);
 
 	void transformAtomic(std::ostream *strm, libdap::BaseType *bt, std::string indent, bool sendData);
 
 
-	void transform(std::ostream *strm, libdap::DDS *dds, std::string indent, bool sendData);
-	void transform(std::ostream *strm, libdap::BaseType *bt, std::string indent, bool sendData);
+	//void transform(std::ostream *strm, libdap::DDS *dds, std::string indent, bool sendData);
+	//void transform(std::ostream *strm, libdap::BaseType *bt, std::string indent, bool sendData);
 
     //void transform(std::ostream *strm, Structure *s,string indent );
     //void transform(std::ostream *strm, Grid *g, string indent);
     //void transform(std::ostream *strm, Sequence *s, string indent);
-	void transform(std::ostream *strm, libdap::Constructor *cnstrctr, std::string indent, bool sendData);
-	void transform_node_worker(std::ostream *strm, std::vector<libdap::BaseType *> leaves, std::vector<libdap::BaseType *> nodes, std::string indent, bool sendData);
+	//void transform(std::ostream *strm, libdap::Constructor *cnstrctr, std::string indent, bool sendData);
+	//void transform_node_worker(std::ostream *strm, std::vector<libdap::BaseType *> leaves, std::vector<libdap::BaseType *> nodes, std::string indent, bool sendData);
 
 
-    void transform(std::ostream *strm, libdap::Array *a, std::string indent, bool sendData);
-    void transform(std::ostream *strm, libdap::AttrTable &attr_table, std::string  indent);
+    //void transform(std::ostream *strm, libdap::Array *a, std::string indent, bool sendData);
+    void writeAttributes(std::ostream *strm, libdap::AttrTable &attr_table, std::string  indent);
 
     template<typename T>
     void json_simple_type_array(std::ostream *strm, libdap::Array *a, std::string indent, bool sendData);
@@ -88,7 +89,13 @@ private:
     		unsigned int currentDim
     		);
 
-
+    void sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, string indent);
+    void sendW10nMetaForVariable(ostream *strm, libdap::BaseType *bt, string indent, bool traverse);
+    std::ostream *getOutputStream();
+    void releaseOutputStream();
+    void sendW10nDataForVariable(ostream *strm, libdap::BaseType *bt, string indent);
+    void sendW10nData(ostream *strm, libdap::BaseType *b, string indent);
+    void sendW10nData(ostream *strm, libdap::Array *b, string indent);
 
 public:
 
@@ -96,7 +103,12 @@ public:
     W10nJsonTransform(libdap::DDS *dds, BESDataHandlerInterface &dhi, std::ostream *ostrm);
 	virtual ~W10nJsonTransform();
 
-	virtual void transform(bool sendData);
+	//virtual void transform(bool sendData);
+	//virtual void sendMetadata();
+	//virtual void sendData();
+	virtual void sendW10nMetaForDDS();
+	virtual void sendW10nMetaForVariable(string &vName, bool traverse);
+	virtual void sendW10nDataForVariable(string &vName);
 
 	virtual void dump(std::ostream &strm) const;
 

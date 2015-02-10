@@ -64,12 +64,13 @@ BES.LogVerbose=no
 # BES.module.h4=@modulesdir@/libhdf4_module.so
 # BES.module.ff=@modulesdir@/libff_module.so
 
-BES.modules=dap,cmd,dapreader,w10n,nc
+BES.modules=dap,cmd,dapreader,w10n,nc,json
 BES.module.dap=@modulesdir@/libdap_module.so
 BES.module.cmd=@modulesdir@/libdap_xml_module.so
 BES.module.dapreader=@modulesdir@/libdapreader_module.so
 BES.module.w10n=@abs_top_builddir@/.libs/libw10n_handler.so
 BES.module.nc=@modulesdir@/libnc_module.so
+BES.module.json=@modulesdir@/libfojson_module.so
 
 #-----------------------------------------------------------------------#
 # Setting the data location

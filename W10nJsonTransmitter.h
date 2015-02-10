@@ -53,6 +53,9 @@ class W10nJsonTransmitter: public BESBasicTransmitter {
 private:
     static void return_temp_stream(const string &filename, ostream &strm);
     static string temp_dir;
+    static string getProjectionClause(const string &constraintExpression);
+    static void checkConstraintForW10nCompatibility(const string &ce);
+    static string getProjectedVariableName(const string &constraintExpression);
 
 public:
     W10nJsonTransmitter();
