@@ -18,7 +18,7 @@
   "leaves": [
     {
       "name": "u",
-      "type": "i",
+      "type": "Int16",
       "attributes": [
         {"name": "units", "value": ["meter per second"]},
         {"name": "long_name", "value": ["Vector wind eastward component"]},
@@ -26,10 +26,11 @@
         {"name": "scale_factor", "value": ["0.005"]}
       ],
       "shape": [16,17,21]
+
     },
     {
       "name": "v",
-      "type": "i",
+      "type": "Int16",
       "attributes": [
         {"name": "units", "value": ["meter per second"]},
         {"name": "long_name", "value": ["Vector wind northward component"]},
@@ -37,32 +38,36 @@
         {"name": "scale_factor", "value": ["0.005"]}
       ],
       "shape": [16,17,21]
+
     },
     {
       "name": "lat",
-      "type": "f",
+      "type": "Float32",
       "attributes": [
         {"name": "units", "value": ["degree North"]}
       ],
       "shape": [17]
+
     },
     {
       "name": "lon",
-      "type": "f",
+      "type": "Float32",
       "attributes": [
         {"name": "units", "value": ["degree East"]}
       ],
       "shape": [21]
+
     },
     {
       "name": "time",
-      "type": "f",
+      "type": "Float32",
       "attributes": [
         {"name": "units", "value": ["hours from base_time"]}
       ],
       "shape": [16]
+
     }
   ],
-  "nodes": []
+  "nodes": [],
   "w10n":[{"name":"spec","value":"draft-20091228"},{"name":"application","value":"Hyrax-@HyraxVersion@"},{"name":"type","value":"dap"},{"name":"path","value":"\/opendap\/w10n\/data\/nc\/fnoc1.nc"},{"name":"identifier","value":"\/"}]
 }
