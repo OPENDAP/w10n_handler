@@ -41,6 +41,7 @@ using std::istringstream;
 
 
 #include <DDS.h>
+#include <Type.h>
 #include <Structure.h>
 #include <Constructor.h>
 #include <Array.h>
@@ -798,7 +799,7 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string ind
 	case libdap::dods_uint8_c:
 	case libdap::dods_int64_c:
 	case libdap::dods_uint64_c:
-	case libdap::dods_url4_c:
+	// case libdap::dods_url4_c:
 	case libdap::dods_enum_c:
 	case libdap::dods_group_c:
 	{
