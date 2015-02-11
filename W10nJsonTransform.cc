@@ -568,7 +568,9 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 
 		}
 		else {
-			*strm << child_indent << "\"shape\": [1]";
+			if(!bt->is_constructor_type()){
+				*strm << child_indent << "\"shape\": [1]";
+			}
 
 		}
 	}
@@ -598,12 +600,13 @@ void W10nJsonTransform::sendW10nMetaForVariable(string &vName, bool traverse){
 	if(!bt){
 		string msg = "The dataset does not contain a variable named '" + vName +"'";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForVariable() - ERROR! " << msg << endl);
-		throw new BESSyntaxUserError(msg, __FILE__, __LINE__);
+		throw BESSyntaxUserError(msg, __FILE__, __LINE__);
 	}
 
 	std::ostream *strm = getOutputStream();
 	try {
-		sendW10nMetaForVariable(_ostrm, bt, "", traverse);
+		sendW10nMetaForVariable(strm, bt, "", traverse);
+		*strm << endl;
 		releaseOutputStream();
 	}
 	catch (...) {
@@ -624,7 +627,7 @@ void W10nJsonTransform::sendW10nDataForVariable(string &vName){
 	if(!bt){
 		string msg = "The dataset does not contain a variable named '" + vName +"'";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nDataForVariable() - ERROR! " << msg << endl);
-		throw new BESSyntaxUserError(msg, __FILE__, __LINE__);
+		throw BESSyntaxUserError(msg, __FILE__, __LINE__);
 	}
 
 	std::ostream *strm = getOutputStream();
@@ -654,7 +657,7 @@ void W10nJsonTransform::sendW10nDataForVariable(ostream *strm, libdap::BaseType 
 		string msg = "The variable '" + bt->name() +"' is not a simple type or an Array of simple types. ";
 		msg += "The w10n protocol does not support the transmission of data for complex types.";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nDataForVariable() - ERROR! " << msg << endl);
-		throw new BESSyntaxUserError(msg, __FILE__, __LINE__);
+		throw BESSyntaxUserError(msg, __FILE__, __LINE__);
 	}
 
 

@@ -287,7 +287,7 @@ void checkConstrainedDDSForW10nDataCompatibility(libdap::DDS *dds){
         			string msg = "Arrays of ";
         			msg += bt->type_name() + " are not supported by the w10n service.";
         		    BESDEBUG(W10N_DEBUG_KEY, "w10n::checkConstrainedDDSForW10nDataCompatibility() - ERROR! " << msg << endl);
-        			throw new BESSyntaxUserError(msg , __FILE__, __LINE__);
+        			throw BESSyntaxUserError(msg , __FILE__, __LINE__);
         		}
         	}
         	markedCount++;
@@ -296,7 +296,7 @@ void checkConstrainedDDSForW10nDataCompatibility(libdap::DDS *dds){
     if(markedCount > 1) {
 		string msg = "More than one variable is projected and that's a no-no for w10n data responses.";
 	    BESDEBUG(W10N_DEBUG_KEY, "w10n::checkConstrainedDDSForW10nDataCompatibility() - ERROR! " << msg << endl);
-		throw new BESSyntaxUserError(msg , __FILE__, __LINE__);
+		throw BESSyntaxUserError(msg , __FILE__, __LINE__);
     }
 
 
@@ -318,7 +318,7 @@ void checkConstructorForW10nDataCompatibility(libdap::Constructor *constructor){
         			string msg = "Arrays of ";
         			msg += bt->type_name() + " are not supported by the w10n service.";
         		    BESDEBUG(W10N_DEBUG_KEY, "w10n::checkConstructorForW10nDataCompatibility() - ERROR! " << msg << endl);
-        			throw new BESSyntaxUserError(msg , __FILE__, __LINE__);
+        			throw BESSyntaxUserError(msg , __FILE__, __LINE__);
         		}
 
         	}
@@ -329,7 +329,7 @@ void checkConstructorForW10nDataCompatibility(libdap::Constructor *constructor){
     if(markedCount > 1) {
 		string msg = "More than one variable is projected and that's a no-no for w10n data responses.";
 	    BESDEBUG(W10N_DEBUG_KEY, "w10n::checkConstructorForW10nDataCompatibility() - ERROR! " << msg << endl);
-		throw new BESSyntaxUserError(msg , __FILE__, __LINE__);
+		throw BESSyntaxUserError(msg , __FILE__, __LINE__);
     }
 
 

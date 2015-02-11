@@ -51,6 +51,7 @@
 #include <BESContextManager.h>
 #include <BESDataDDSResponse.h>
 #include <BESDDSResponse.h>
+#include <BESDapError.h>
 #include <BESDapNames.h>
 #include <BESDataNames.h>
 #include <BESDebug.h>
@@ -116,7 +117,7 @@ void W10nJsonTransmitter::checkConstraintForW10nCompatibility(const string &ce){
 		string msg = "The w10n protocol only allows one variable to be selected at a time. ";
 	    msg += "The constraint expression '" + ce + "' requests more than one.";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::checkConstraintForW10nCompatibility() - ERROR! "<< msg << endl);
-		throw new BESSyntaxUserError(msg , __FILE__, __LINE__);
+		throw BESSyntaxUserError(msg , __FILE__, __LINE__);
 	}
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::checkConstraintForW10nCompatibility() - END:  " << endl);
 
@@ -217,7 +218,7 @@ void W10nJsonTransmitter::send_data(BESResponseObject *obj, BESDataHandlerInterf
     catch (Error &e) {
     	string msg = "Failed to parse the constraint expression. Msg: "+ e.get_error_message();
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESInternalError(msg, __FILE__, __LINE__);
+        throw BESDapError(msg, 0, e.get_error_code(),__FILE__, __LINE__);
     }
     catch (...) {
     	string msg = "Failed to parse the constraint expression. Unknown exception caught";
@@ -253,7 +254,7 @@ void W10nJsonTransmitter::send_data(BESResponseObject *obj, BESDataHandlerInterf
     catch (Error &e) {
     	string msg = "Failed to read data! Msg: " + e.get_error_message();
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESInternalError(msg, __FILE__, __LINE__);
+        throw BESDapError(msg, 0, e.get_error_code(),__FILE__, __LINE__);
     }
     catch (...) {
     	string msg = "Failed to read data: Unknown exception caught";
