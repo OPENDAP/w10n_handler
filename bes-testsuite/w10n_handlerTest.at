@@ -31,5 +31,32 @@ m4_define([AT_BESCMD_RESPONSE_TEST],
 
 AT_BESCMD_RESPONSE_TEST([ShowPathInfo_01.bescmd])
 AT_BESCMD_RESPONSE_TEST([ShowPathInfo_02.bescmd])
-AT_BESCMD_RESPONSE_TEST([w10n_fnoc1_01.bescmd])
+
+AT_BESCMD_RESPONSE_TEST([atomicTypes_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([atomicTypes_varByte_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([atomicTypes_varByte_data.bescmd])
+AT_BESCMD_RESPONSE_TEST([atomicTypes_varDouble_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([atomicTypes_varDouble_data.bescmd])
+AT_BESCMD_RESPONSE_TEST([atomicTypes_varFloat_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([atomicTypes_varFloat_data.bescmd])
+AT_BESCMD_RESPONSE_TEST([atomicTypes_varInt_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([atomicTypes_varInt_data.bescmd])
+AT_BESCMD_RESPONSE_TEST([atomicTypes_varShort_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([atomicTypes_varShort_data.bescmd])
+
+AT_BESCMD_RESPONSE_TEST([coads_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([coads_SST_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([coads_SST_data.bescmd])
+AT_BESCMD_RESPONSE_TEST([coads_SST.SST_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([coads_SST.SST_CE_data.bescmd])
+AT_BESCMD_RESPONSE_TEST([coads_SST.COADSX_CE_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([coads_SST.COADSX_CE_data.bescmd])
+AT_BESCMD_RESPONSE_TEST([coads_SST.COADSX_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([coads_SST.COADSX_data.bescmd])
+
+AT_BESCMD_RESPONSE_TEST([fnoc1_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([fnoc1_u_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([fnoc1_u_data.bescmd])
+AT_BESCMD_RESPONSE_TEST([fnoc1_u_CE_meta.bescmd])
+AT_BESCMD_RESPONSE_TEST([fnoc1_u_CE_data.bescmd])
 

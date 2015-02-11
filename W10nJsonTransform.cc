@@ -569,7 +569,7 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 		}
 		else {
 			if(!bt->is_constructor_type()){
-				*strm << child_indent << "\"shape\": [1]";
+				//*strm << child_indent << "\"shape\": [1]";
 			}
 
 		}

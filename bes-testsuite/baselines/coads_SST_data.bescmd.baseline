@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<response reqID="[http-bio-8080-exec-3:44:bes_request]" xmlns="http://xml.opendap.org/ns/bes/1.0#">
+    <getDODS>
+        <BESError>
+            <Type>3</Type>
+            <Message>The w10n does not support data responses from nodes. The variable SST is a node variable.</Message>
+            <Administrator>admin.email.address@your.domain.name</Administrator>
+        </BESError>
+    </getDODS>
+</response>

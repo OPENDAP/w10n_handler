@@ -1,0 +1,49 @@
+{
+  "name": "coads_climatology.nc",
+  "attributes": [
+    {
+      "name": "NC_GLOBAL",
+      "attributes": [
+        {"name": "history", "value": ["FERRET V4.30 (debug/no GUI) 15-Aug-96"]}
+      ]
+    },
+    {
+      "name": "DODS_EXTRA",
+      "attributes": [
+        {"name": "Unlimited_Dimension", "value": ["TIME"]}
+      ]
+    }
+  ],
+  "leaves": [],
+  "nodes": [
+    {
+      "name": "SST",
+      "type": "Grid",
+      "attributes": [],
+
+
+    },
+    {
+      "name": "AIRT",
+      "type": "Grid",
+      "attributes": [],
+
+
+    },
+    {
+      "name": "UWND",
+      "type": "Grid",
+      "attributes": [],
+
+
+    },
+    {
+      "name": "VWND",
+      "type": "Grid",
+      "attributes": [],
+
+
+    }
+  ],
+  "w10n":[{"name":"spec","value":"draft-20091228"},{"name":"application","value":"Hyrax-@HyraxVersion@"},{"name":"type","value":"dap"},{"name":"path","value":"\/opendap\/w10n\/data\/nc\/coads_climatology.nc"},{"name":"identifier","value":"\/"}]
+}
