@@ -61,7 +61,7 @@ private:
 	void writeVariableMetadata(std::ostream *strm, libdap::BaseType *bt, std::string indent);
 	void writeDatasetMetadata(std::ostream *strm, libdap::DDS *dds, std::string indent);
 
-	void transformAtomic(std::ostream *strm, libdap::BaseType *bt, std::string indent, bool sendData);
+	// void transformAtomic(std::ostream *strm, libdap::BaseType *bt, std::string indent);
 
 
 	//void transform(std::ostream *strm, libdap::DDS *dds, std::string indent, bool sendData);
@@ -78,7 +78,7 @@ private:
     void writeAttributes(std::ostream *strm, libdap::AttrTable &attr_table, std::string  indent);
 
     template<typename T>
-    void json_simple_type_array(std::ostream *strm, libdap::Array *a, std::string indent, bool sendData);
+    void json_simple_type_array(std::ostream *strm, libdap::Array *a, std::string indent);
 
     template<typename T>
     unsigned  int json_simple_type_array_worker(

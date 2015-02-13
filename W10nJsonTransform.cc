@@ -96,35 +96,44 @@ template<typename T> unsigned  int W10nJsonTransform::json_simple_type_array_wor
  * Writes the w10n json representation of the passed DAP Array of simple types. If the
  * parameter "sendData" evaluates to true then data will also be sent.
  */
-template<typename T>void W10nJsonTransform::json_simple_type_array(ostream *strm, libdap::Array *a, string indent, bool sendData){
+template<typename T>void W10nJsonTransform::json_simple_type_array(ostream *strm, libdap::Array *a, string indent){
 
 
 	*strm  << "{";
 
-	string childindent = indent + _indent_increment;
+	string child_indent = indent + _indent_increment;
 
 	int numDim = a->dimensions(true);
 	vector<unsigned int> shape(numDim);
 	long length = w10n::computeConstrainedShape(a, &shape);
 
 
-	if(sendData){
 
-		// Data
-		*strm << "\"data\": ";
+	// Data
+	*strm << "\"data\": ";
 
-	    T *src = new T[length];
-	    a->value(src);
+	T *src = new T[length];
+	a->value(src);
 
-	    unsigned int indx = json_simple_type_array_worker(strm, src, 0, &shape, 0);
+	unsigned int indx = json_simple_type_array_worker(strm, src, 0, &shape, 0);
 
-	    delete src;
+	delete src;
 
-	    if(length != indx)
-			BESDEBUG(W10N_DEBUG_KEY, "json_simple_type_array() - indx NOT equal to content length! indx:  " << indx << "  length: " << length << endl);
+	if(length != indx)
+		BESDEBUG(W10N_DEBUG_KEY, "json_simple_type_array() - indx NOT equal to content length! indx:  " << indx << "  length: " << length << endl);
 
 
-	}
+	bool foundIt = false;
+	string w10n_meta = BESContextManager::TheManager()->get_context(W10N_META_KEY,foundIt);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nData() - w10n_meta object: "<< w10n_meta << endl);
+
+	if(foundIt)
+		*strm << "," << endl << child_indent << w10n_meta << endl;
+	else
+		*strm << endl;
+	*strm << indent << "}" << endl;
+
+
 
 	*strm  << "}" << endl;
 
@@ -704,7 +713,6 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::BaseType *b, string 
 
 void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string indent){
 
-	bool sendData = true;
 
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::transform() - Processing Array. "
             << " a->type(): " << a->type()
@@ -714,31 +722,31 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string ind
 	switch(a->var()->type()){
 	// Handle the atomic types - that's easy!
 	case libdap::dods_byte_c:
-		json_simple_type_array<libdap::dods_byte>(strm,a,indent,sendData);
+		json_simple_type_array<libdap::dods_byte>(strm,a,indent);
 		break;
 
 	case libdap::dods_int16_c:
-		json_simple_type_array<libdap::dods_int16>(strm,a,indent,sendData);
+		json_simple_type_array<libdap::dods_int16>(strm,a,indent);
 		break;
 
 	case libdap::dods_uint16_c:
-		json_simple_type_array<libdap::dods_uint16>(strm,a,indent,sendData);
+		json_simple_type_array<libdap::dods_uint16>(strm,a,indent);
 		break;
 
 	case libdap::dods_int32_c:
-		json_simple_type_array<libdap::dods_int32>(strm,a,indent,sendData);
+		json_simple_type_array<libdap::dods_int32>(strm,a,indent);
 		break;
 
 	case libdap::dods_uint32_c:
-		json_simple_type_array<libdap::dods_uint32>(strm,a,indent,sendData);
+		json_simple_type_array<libdap::dods_uint32>(strm,a,indent);
 		break;
 
 	case libdap::dods_float32_c:
-		json_simple_type_array<libdap::dods_float32>(strm,a,indent,sendData);
+		json_simple_type_array<libdap::dods_float32>(strm,a,indent);
     	break;
 
 	case libdap::dods_float64_c:
-		json_simple_type_array<libdap::dods_float64>(strm,a,indent,sendData);
+		json_simple_type_array<libdap::dods_float64>(strm,a,indent);
 		break;
 
 	case libdap::dods_str_c:
