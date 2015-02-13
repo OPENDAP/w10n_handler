@@ -330,7 +330,7 @@ void checkConstructorForW10nDataCompatibility(libdap::Constructor *constructor){
     if(markedCount > 1) {
 		string msg;
 		if(markedCount == constructor->element_count())
-			msg = "The w10n does not support data responses from nodes. The variable " + constructor->name()+ " is a node variable.";
+			msg = "The w10n protocol does not support data responses from nodes. The variable " + constructor->name()+ " is a node variable.";
 		else
 			msg = "More than one child variable of the node variable "+ constructor->name() + " is projected and that's a no-no for w10n data responses.";
 	    BESDEBUG(W10N_DEBUG_KEY, "w10n::checkConstructorForW10nDataCompatibility() - ERROR! " << msg << endl);
