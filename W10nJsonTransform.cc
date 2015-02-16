@@ -164,19 +164,20 @@ void W10nJsonTransform::writeVariableMetadata(ostream *strm, libdap::BaseType *b
 
 	// Name
 	*strm << indent << "\"name\": \""<< bt->name() << "\"," << endl;
+	libdap::BaseType *var = bt;
+
 
 	// w10n type
 	if(bt->type() == libdap::dods_array_c){
 		libdap::Array *a = (libdap::Array *)bt;
-		*strm << indent << "\"type\": \""<< a->var()->type_name() << "\"," << endl;
+		var = a->var();
 	}
-	else {
-		*strm << indent << "\"type\": \""<< bt->type_name() << "\"," << endl;
-	}
+	if(!var->is_constructor_type())
+		*strm << indent << "\"type\": \""<< var->type_name() << "\"," << endl;
 
 	//Attributes
 	writeAttributes(strm, bt->get_attr_table(), indent);
-	*strm << "," << endl;
+
 
 
 
@@ -500,6 +501,8 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 
 
 	if(bt->type() == libdap::dods_array_c){
+		*strm << "," << endl;
+
 		libdap::Array *a = (libdap::Array *) bt;
 		int numDim = a->dimensions(true);
 		vector<unsigned int> shape(numDim);
@@ -515,6 +518,8 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 		}
 	else {
 		if(bt->is_constructor_type() && traverse){
+			*strm << "," << endl;
+
 			libdap::Constructor *ctor = (libdap::Constructor *)bt;
 
 			vector<libdap::BaseType *> leaves;
@@ -579,7 +584,9 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 		}
 		else {
 			if(!bt->is_constructor_type()){
-				//*strm << child_indent << "\"shape\": [1]";
+				*strm << endl;
+				// *strm << "," << endl;
+				// *strm << child_indent << "\"shape\": [1]";
 			}
 
 		}
