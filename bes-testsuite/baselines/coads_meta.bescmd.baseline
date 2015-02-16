@@ -18,30 +18,22 @@
   "nodes": [
     {
       "name": "SST",
-      "type": "Grid",
-      "attributes": [],
-
+      "attributes": []
 
     },
     {
       "name": "AIRT",
-      "type": "Grid",
-      "attributes": [],
-
+      "attributes": []
 
     },
     {
       "name": "UWND",
-      "type": "Grid",
-      "attributes": [],
-
+      "attributes": []
 
     },
     {
       "name": "VWND",
-      "type": "Grid",
-      "attributes": [],
-
+      "attributes": []
 
     }
   ],

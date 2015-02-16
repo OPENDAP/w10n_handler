@@ -10,7 +10,7 @@
         {"name": "standard_name", "value": ["mesh_topology"]},
         {"name": "topology_dimension", "value": [2]},
         {"name": "node_coordinates", "value": ["X Y"]}
-      ],
+      ]
 
 
     },
@@ -20,7 +20,7 @@
       "attributes": [
         {"name": "description", "value": ["A deficiency in character my friend."]},
         {"name": "string_length", "value": [1]}
-      ],
+      ]
 
 
     },
@@ -29,7 +29,7 @@
       "type": "Byte",
       "attributes": [
         {"name": "description", "value": ["Byte me."]}
-      ],
+      ]
 
 
     },
@@ -38,7 +38,7 @@
       "type": "Int16",
       "attributes": [
         {"name": "description", "value": ["Short people got no reason to..."]}
-      ],
+      ]
 
 
     },
@@ -47,7 +47,7 @@
       "type": "Int32",
       "attributes": [
         {"name": "description", "value": ["More like 4 dollars."]}
-      ],
+      ]
 
 
     },
@@ -56,7 +56,7 @@
       "type": "Int32",
       "attributes": [
         {"name": "description", "value": ["Too long have I wandered this barren wasteland my friend."]}
-      ],
+      ]
 
 
     },
@@ -65,7 +65,7 @@
       "type": "Float32",
       "attributes": [
         {"name": "description", "value": ["Floating in blissful silence through time and space."]}
-      ],
+      ]
 
 
     },
@@ -74,7 +74,7 @@
       "type": "Float64",
       "attributes": [
         {"name": "description", "value": ["When in doubt, double down."]}
-      ],
+      ]
 
 
     },
