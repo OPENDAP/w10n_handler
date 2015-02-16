@@ -261,8 +261,9 @@ long computeConstrainedShape(libdap::Array *a, std::vector<unsigned int> *shape 
         dimSize = 1 + ( (stop - start) / stride);
         BESDEBUG(W10N_DEBUG_KEY, "w10n::computeConstrainedShape() - dimSize: " << dimSize << endl);
 
-        (*shape)[dimNum++] = dimSize;
+		(*shape)[dimNum++] = dimSize;
         totalSize *= dimSize;
+
     }
     BESDEBUG(W10N_DEBUG_KEY, "w10n::computeConstrainedShape() - totalSize: " << totalSize << endl);
     BESDEBUG(W10N_DEBUG_KEY, "w10n::computeConstrainedShape() - END." << endl);

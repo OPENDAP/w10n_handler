@@ -56,6 +56,7 @@ private:
     static string getProjectionClause(const string &constraintExpression);
     static void checkConstraintForW10nCompatibility(const string &ce);
     static string getProjectedVariableName(const string &constraintExpression);
+    static void cleanupW10nContexts();
 
 public:
     W10nJsonTransmitter();

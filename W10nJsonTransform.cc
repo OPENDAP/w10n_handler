@@ -63,9 +63,10 @@ using std::istringstream;
  *  @TODO Handle String and URL Arrays including backslash escaping double quotes in values.
  *
  */
-template<typename T> unsigned  int W10nJsonTransform::json_simple_type_array_worker(ostream *strm, T *values, unsigned int indx, vector<unsigned int> *shape, unsigned int currentDim){
+template<typename T> unsigned  int W10nJsonTransform::json_simple_type_array_worker(ostream *strm, T *values, unsigned int indx, vector<unsigned int> *shape, unsigned int currentDim, bool flatten){
 
-	*strm << "[";
+	if(currentDim==0 || !flatten)
+		*strm << "[";
 
 	unsigned int currentDimSize = (*shape)[currentDim];
 
@@ -75,7 +76,7 @@ template<typename T> unsigned  int W10nJsonTransform::json_simple_type_array_wor
 					<< " currentDim: " << currentDim
 					<< " currentDimSize: " << currentDimSize
 					<< endl);
-			indx = json_simple_type_array_worker<T>(strm,values,indx,shape,currentDim+1);
+			indx = json_simple_type_array_worker<T>(strm,values,indx,shape,currentDim+1, flatten);
 			if(i+1 != currentDimSize)
 		    	*strm << ", ";
 		}
@@ -85,7 +86,9 @@ template<typename T> unsigned  int W10nJsonTransform::json_simple_type_array_wor
 	    	*strm << values[indx++];
 		}
     }
-	*strm << "]";
+
+	if(currentDim==0 || !flatten)
+		*strm << "]";
 
 	return indx;
 }
@@ -99,7 +102,27 @@ template<typename T> unsigned  int W10nJsonTransform::json_simple_type_array_wor
 template<typename T>void W10nJsonTransform::json_simple_type_array(ostream *strm, libdap::Array *a, string indent){
 
 
-	*strm  << "{";
+	bool found_w10n_meta_object = false;
+	string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_meta_object: "<< w10n_meta_object << endl);
+
+	bool found_w10n_callback = false;
+	string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_callback: "<< w10n_callback << endl);
+
+	bool found_w10n_flatten = false;
+	string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_flatten: "<< w10n_flatten << endl);
+
+
+
+	if(found_w10n_callback){
+		*strm << w10n_callback << "(";
+	}
+
+
+
+	*strm  << "{" << endl;
 
 	string child_indent = indent + _indent_increment;
 
@@ -107,15 +130,17 @@ template<typename T>void W10nJsonTransform::json_simple_type_array(ostream *strm
 	vector<unsigned int> shape(numDim);
 	long length = w10n::computeConstrainedShape(a, &shape);
 
+	writeVariableMetadata(strm,a,child_indent);
+	*strm << "," << endl;
 
 
 	// Data
-	*strm << "\"data\": ";
+	*strm << child_indent << "\"data\": ";
 
 	T *src = new T[length];
 	a->value(src);
 
-	unsigned int indx = json_simple_type_array_worker(strm, src, 0, &shape, 0);
+	unsigned int indx = json_simple_type_array_worker(strm, src, 0, &shape, 0, found_w10n_flatten);
 
 	delete src;
 
@@ -123,19 +148,22 @@ template<typename T>void W10nJsonTransform::json_simple_type_array(ostream *strm
 		BESDEBUG(W10N_DEBUG_KEY, "json_simple_type_array() - indx NOT equal to content length! indx:  " << indx << "  length: " << length << endl);
 
 
-	bool foundIt = false;
-	string w10n_meta = BESContextManager::TheManager()->get_context(W10N_META_KEY,foundIt);
-	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nData() - w10n_meta object: "<< w10n_meta << endl);
 
-	if(foundIt)
-		*strm << "," << endl << child_indent << w10n_meta << endl;
+	if(found_w10n_meta_object)
+		*strm << "," << endl << child_indent << w10n_meta_object << endl;
 	else
 		*strm << endl;
+
 	*strm << indent << "}" << endl;
 
+	if(found_w10n_callback){
+		*strm << ")";
+	}
+
+	*strm << endl;
 
 
-	*strm  << "}" << endl;
+	//*strm  << "}" << endl;
 
 }
 
@@ -404,6 +432,21 @@ void W10nJsonTransform::sendW10nMetaForDDS(){
 void W10nJsonTransform::sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, string indent){
 
 
+
+	bool found_w10n_meta_object = false;
+	string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_meta_object: "<< w10n_meta_object << endl);
+
+	bool found_w10n_callback = false;
+	string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_callback: "<< w10n_callback << endl);
+
+	bool found_w10n_flatten = false;
+	string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_flatten: "<< w10n_flatten << endl);
+
+
+
 	/**
 	 * w10 sees the world in terms of leaves and nodes. Leaves have data, nodes have other nodes and leaves.
 	 */
@@ -429,9 +472,13 @@ void W10nJsonTransform::sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, stri
 		}
 	}
 
+	if(found_w10n_callback){
+		*strm << w10n_callback << "(";
+	}
+
 
 	// Declare this node
-	*strm << indent << "{" << endl ;
+	*strm << "{" << endl ;
 	string child_indent = indent + _indent_increment;
 
 	// Write this node's metadata (name & attributes)
@@ -475,23 +522,43 @@ void W10nJsonTransform::sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, stri
 	*strm << "]";
 
 
-
-	bool foundIt = false;
-	string w10n_meta = BESContextManager::TheManager()->get_context(W10N_META_KEY,foundIt);
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForDDS() - w10n_meta object: "<< w10n_meta << endl);
-
-    if(foundIt)
-    	*strm << "," << endl << child_indent << w10n_meta << endl;
+    if(found_w10n_meta_object)
+    	*strm << "," << endl << child_indent << w10n_meta_object << endl;
     else
     	*strm << endl;
 
-	*strm << indent << "}" << endl;
+	*strm << "}";
 
+	if(found_w10n_callback){
+		*strm  << ")";
+	}
+
+	*strm << endl;
 
 
 }
 
-void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType *bt, string indent, bool traverse){
+void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType *bt, string indent, bool isTop){
+
+
+
+	bool found_w10n_meta_object = false;
+	string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_meta_object: "<< w10n_meta_object << endl);
+
+	bool found_w10n_callback = false;
+	string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_callback: "<< w10n_callback << endl);
+
+	bool found_w10n_flatten = false;
+	string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_flatten: "<< w10n_flatten << endl);
+
+
+	if(isTop && found_w10n_callback){
+		*strm << w10n_callback << "(";
+	}
+
 
 	*strm << indent << "{" << endl;\
 
@@ -508,16 +575,22 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 		vector<unsigned int> shape(numDim);
 		long length = w10n::computeConstrainedShape(a, &shape);
 
-		*strm << child_indent << "\"shape\": [";
-		for(int i=0; i<shape.size() ;i++){
-			if(i>0)
-				*strm << ",";
-			*strm << shape[i];
+		if(found_w10n_flatten){
+			*strm << child_indent << "\"shape\": [" << length << "]";
+
 		}
-		*strm << "]";
+		else {
+			*strm << child_indent << "\"shape\": [";
+			for(int i=0; i<shape.size() ;i++){
+				if(i>0)
+					*strm << ",";
+				*strm << shape[i];
+			}
+			*strm << "]";
+		}
 		}
 	else {
-		if(bt->is_constructor_type() && traverse){
+		if(bt->is_constructor_type() /* && traverse */){
 			*strm << "," << endl;
 
 			libdap::Constructor *ctor = (libdap::Constructor *)bt;
@@ -584,7 +657,7 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 		}
 		else {
 			if(!bt->is_constructor_type()){
-				*strm << endl;
+				// *strm << endl;
 				// *strm << "," << endl;
 				// *strm << child_indent << "\"shape\": [1]";
 			}
@@ -592,16 +665,17 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 		}
 	}
 
-	bool foundIt = false;
-	string w10n_meta = BESContextManager::TheManager()->get_context(W10N_META_KEY,foundIt);
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForVariable() - w10n_meta object: "<< w10n_meta << endl);
+	if(isTop && found_w10n_meta_object){
+		*strm << "," << endl << child_indent << w10n_meta_object << endl;
+	}
 
-    if(foundIt && traverse)
-    	*strm << "," << endl << child_indent << w10n_meta << endl;
-    else
-    	*strm << endl;
+
 
 	*strm << endl << indent << "}";
+
+	if(isTop && found_w10n_callback){
+		*strm << ")";
+	}
 
 }
 
@@ -609,7 +683,7 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 
 
 
-void W10nJsonTransform::sendW10nMetaForVariable(string &vName, bool traverse){
+void W10nJsonTransform::sendW10nMetaForVariable(string &vName, bool isTop){
 
 
 	libdap::BaseType *bt = _dds->var(vName);
@@ -622,7 +696,7 @@ void W10nJsonTransform::sendW10nMetaForVariable(string &vName, bool traverse){
 
 	std::ostream *strm = getOutputStream();
 	try {
-		sendW10nMetaForVariable(strm, bt, "", traverse);
+		sendW10nMetaForVariable(strm, bt, "", isTop);
 		*strm << endl;
 		releaseOutputStream();
 	}
@@ -687,9 +761,36 @@ void W10nJsonTransform::sendW10nDataForVariable(ostream *strm, libdap::BaseType 
  */
 void W10nJsonTransform::sendW10nData(ostream *strm, libdap::BaseType *b, string indent){
 
+    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nData() - Sending data for simple type "<< b->name() << endl);
+
+	bool found_w10n_meta_object = false;
+	string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_meta_object: "<< w10n_meta_object << endl);
+
+	bool found_w10n_callback = false;
+	string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_callback: "<< w10n_callback << endl);
+
+	bool found_w10n_flatten = false;
+	string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_flatten: "<< w10n_flatten << endl);
+
+
+
+
+
 	string child_indent = indent + _indent_increment;
 
-	*strm << indent << "{" << endl;
+	if(found_w10n_callback){
+		*strm << w10n_callback << "(";
+	}
+
+
+	*strm << "{" << endl;
+
+	writeVariableMetadata(strm,b,child_indent);
+	*strm << "," << endl;
+
 
 	*strm << child_indent << "\"data\": ";
 
@@ -702,15 +803,20 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::BaseType *b, string 
 	else {
 		b->print_val(*strm, "", false);
 	}
-	bool foundIt = false;
-	string w10n_meta = BESContextManager::TheManager()->get_context(W10N_META_KEY,foundIt);
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nData() - w10n_meta object: "<< w10n_meta << endl);
 
-    if(foundIt)
-    	*strm << "," << endl << child_indent << w10n_meta << endl;
+
+
+    if(found_w10n_meta_object)
+    	*strm << "," << endl << child_indent << w10n_meta_object << endl;
     else
     	*strm << endl;
-	*strm << indent << "}" << endl;
+
+	*strm << "}";
+
+	if(found_w10n_callback){
+		*strm  << ")";
+	}
+	*strm << endl;
 
 
 	// *strm << "]";
@@ -722,8 +828,8 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string ind
 
 
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::transform() - Processing Array. "
-            << " a->type(): " << a->type()
-			<< " a->var()->type(): " << a->var()->type()
+            << " a->type_name(): " << a->type_name()
+			<< " a->var()->type_name(): " << a->var()->type_name()
 			<< endl);
 
 	switch(a->var()->type()){

@@ -86,7 +86,8 @@ private:
     		T *values,
     		unsigned int indx,
     		std::vector<unsigned int> *shape,
-    		unsigned int currentDim
+    		unsigned int currentDim,
+			bool flatten
     		);
 
     void sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, string indent);
@@ -107,7 +108,7 @@ public:
 	//virtual void sendMetadata();
 	//virtual void sendData();
 	virtual void sendW10nMetaForDDS();
-	virtual void sendW10nMetaForVariable(string &vName, bool traverse);
+	virtual void sendW10nMetaForVariable(string &vName, bool isTop);
 	virtual void sendW10nDataForVariable(string &vName);
 
 	virtual void dump(std::ostream &strm) const;

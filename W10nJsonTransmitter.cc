@@ -284,6 +284,8 @@ void W10nJsonTransmitter::send_data(BESResponseObject *obj, BESDataHandlerInterf
         throw BESInternalError(msg, __FILE__, __LINE__);
     }
 
+    cleanupW10nContexts();
+
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - END. Done transmitting JSON" << endl);
 }
 
@@ -352,6 +354,7 @@ void W10nJsonTransmitter::send_metadata(BESResponseObject *obj, BESDataHandlerIn
     	ft.sendW10nMetaForVariable(varName, true);
     }
 
+    cleanupW10nContexts();
 
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_metadata() - done transmitting JSON" << endl);
 }
@@ -403,3 +406,16 @@ void W10nJsonTransmitter::return_temp_stream(const string &filename, ostream &st
     os.close();
 }
 
+
+
+void W10nJsonTransmitter::cleanupW10nContexts()
+{
+    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::cleanupW10nContexts() - Removing context" << W10N_META_OBJECT_KEY << endl);
+	BESContextManager::TheManager()->unset_context(W10N_META_OBJECT_KEY);
+
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::cleanupW10nContexts() - Removing context" << W10N_CALLBACK_KEY << endl);
+	BESContextManager::TheManager()->unset_context(W10N_CALLBACK_KEY);
+
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::cleanupW10nContexts() - Removing context" << W10N_FLATTEN_KEY << endl);
+	BESContextManager::TheManager()->unset_context(W10N_FLATTEN_KEY);
+}

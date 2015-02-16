@@ -13,7 +13,6 @@
         {"name": "units", "value": ["Deg C"]}
       ],
       "shape": [12,90,180]
-
     },
     {
       "name": "TIME",
@@ -24,7 +23,6 @@
         {"name": "modulo", "value": [" "]}
       ],
       "shape": [12]
-
     },
     {
       "name": "COADSY",
@@ -34,7 +32,6 @@
         {"name": "point_spacing", "value": ["even"]}
       ],
       "shape": [90]
-
     },
     {
       "name": "COADSX",
@@ -45,7 +42,6 @@
         {"name": "point_spacing", "value": ["even"]}
       ],
       "shape": [180]
-
     }
   ],
   "nodes": [],

@@ -11,8 +11,6 @@
         {"name": "topology_dimension", "value": [2]},
         {"name": "node_coordinates", "value": ["X Y"]}
       ]
-
-
     },
     {
       "name": "letter",
@@ -21,8 +19,6 @@
         {"name": "description", "value": ["A deficiency in character my friend."]},
         {"name": "string_length", "value": [1]}
       ]
-
-
     },
     {
       "name": "varByte",
@@ -30,8 +26,6 @@
       "attributes": [
         {"name": "description", "value": ["Byte me."]}
       ]
-
-
     },
     {
       "name": "varShort",
@@ -39,8 +33,6 @@
       "attributes": [
         {"name": "description", "value": ["Short people got no reason to..."]}
       ]
-
-
     },
     {
       "name": "varInt",
@@ -48,8 +40,6 @@
       "attributes": [
         {"name": "description", "value": ["More like 4 dollars."]}
       ]
-
-
     },
     {
       "name": "varLong",
@@ -57,8 +47,6 @@
       "attributes": [
         {"name": "description", "value": ["Too long have I wandered this barren wasteland my friend."]}
       ]
-
-
     },
     {
       "name": "varFloat",
@@ -66,8 +54,6 @@
       "attributes": [
         {"name": "description", "value": ["Floating in blissful silence through time and space."]}
       ]
-
-
     },
     {
       "name": "varDouble",
@@ -75,8 +61,6 @@
       "attributes": [
         {"name": "description", "value": ["When in doubt, double down."]}
       ]
-
-
     },
     {
       "name": "X",
@@ -86,7 +70,6 @@
         {"name": "grid_location", "value": ["node"]}
       ],
       "shape": [9]
-
     },
     {
       "name": "Y",
@@ -96,7 +79,6 @@
         {"name": "grid_location", "value": ["node"]}
       ],
       "shape": [9]
-
     }
   ],
   "nodes": [],
