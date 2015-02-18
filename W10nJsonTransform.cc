@@ -463,11 +463,6 @@ void W10nJsonTransform::sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, stri
 	string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_callback: "<< w10n_callback << endl);
 
-	bool found_w10n_flatten = false;
-	string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
-	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_flatten: "<< w10n_flatten << endl);
-
-
 
 	/**
 	 * w10 sees the world in terms of leaves and nodes. Leaves have data, nodes have other nodes and leaves.
@@ -499,11 +494,11 @@ void W10nJsonTransform::sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, stri
 	}
 
 
-	// Declare this node
+	// Declare the top level node
 	*strm << "{" << endl ;
 	string child_indent = indent + _indent_increment;
 
-	// Write this node's metadata (name & attributes)
+	// Write the top level node's metadata (name & attributes)
 	writeDatasetMetadata(strm, dds, child_indent);
 
 
@@ -577,6 +572,12 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_flatten: "<< w10n_flatten << endl);
 
 
+	bool found_w10n_traverse = false;
+	string w10n_traverse = BESContextManager::TheManager()->get_context(W10N_TRAVERSE_KEY,found_w10n_traverse);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_traverse: "<< w10n_traverse << endl);
+
+
+
 	if(isTop && found_w10n_callback){
 		*strm << w10n_callback << "(";
 	}
@@ -612,7 +613,7 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 		}
 		}
 	else {
-		if(bt->is_constructor_type() /* && traverse */){
+		if(bt->is_constructor_type()  && (found_w10n_traverse ||  isTop)){
 			*strm << "," << endl;
 
 			libdap::Constructor *ctor = (libdap::Constructor *)bt;

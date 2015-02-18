@@ -6,6 +6,7 @@
 #define W10N_META_OBJECT_KEY "w10nMeta"
 #define W10N_FLATTEN_KEY "w10nFlatten"
 #define W10N_CALLBACK_KEY "w10nCallback"
+#define W10N_TRAVERSE_KEY "w10nTraverse"
 
 
 #define SHOW_PATH_INFO_RESPONSE "show.pathInfo"

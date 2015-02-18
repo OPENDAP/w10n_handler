@@ -418,4 +418,8 @@ void W10nJsonTransmitter::cleanupW10nContexts()
 
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::cleanupW10nContexts() - Removing context" << W10N_FLATTEN_KEY << endl);
 	BESContextManager::TheManager()->unset_context(W10N_FLATTEN_KEY);
+
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::cleanupW10nContexts() - Removing context" << W10N_TRAVERSE_KEY << endl);
+	BESContextManager::TheManager()->unset_context(W10N_TRAVERSE_KEY);
+
 }
