@@ -46,6 +46,7 @@ using std::istringstream;
 #include <Constructor.h>
 #include <Array.h>
 #include <Grid.h>
+#include <Str.h>
 #include <Sequence.h>
 #include <Str.h>
 #include <Url.h>
@@ -82,8 +83,15 @@ template<typename T> unsigned  int W10nJsonTransform::json_simple_type_array_wor
 		}
 		else {
 	    	if(i)
-		    	*strm << ", ";
-	    	*strm << values[indx++];
+		        *strm << ", ";
+	    	if(typeid(T) == typeid(std::string)){
+	    		// Strings need to be escaped to be included in a JSON object.
+	    		std::string val = ((std::string *) values)[indx++];
+				*strm << "\"" << w10n::escape_for_json( val )<< "\"";
+	    	}
+	    	else {
+				*strm << values[indx++];
+	    	}
 		}
     }
 
@@ -114,12 +122,12 @@ template<typename T>void W10nJsonTransform::json_simple_type_array(ostream *strm
 	string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_flatten: "<< w10n_flatten << endl);
 
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - Processing Array of " << a->var()->type_name() << endl);
 
 
 	if(found_w10n_callback){
 		*strm << w10n_callback << "(";
 	}
-
 
 
 	*strm  << "{" << endl;
@@ -130,19 +138,33 @@ template<typename T>void W10nJsonTransform::json_simple_type_array(ostream *strm
 	vector<unsigned int> shape(numDim);
 	long length = w10n::computeConstrainedShape(a, &shape);
 
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - Writing variable metadata..."  << endl);
+
 	writeVariableMetadata(strm,a,child_indent);
 	*strm << "," << endl;
 
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - Writing variable data..."  << endl);
 
 	// Data
 	*strm << child_indent << "\"data\": ";
+	unsigned int indx;
 
-	T *src = new T[length];
-	a->value(src);
 
-	unsigned int indx = json_simple_type_array_worker(strm, src, 0, &shape, 0, found_w10n_flatten);
 
-	delete src;
+	if(typeid(T) == typeid(std::string)){
+		// The string type utilizes a specialized version of libdap:Array.value()
+		vector<std::string> sourceValues;
+		a->value(sourceValues);
+		indx = json_simple_type_array_worker(strm, (std::string *)(&sourceValues[0]), 0, &shape, 0, found_w10n_flatten);
+	}
+	else {
+		T *src = new T[length];
+		a->value(src);
+		indx = json_simple_type_array_worker(strm, src, 0, &shape, 0, found_w10n_flatten);
+		delete src;
+	}
+
+
 
 	if(length != indx)
 		BESDEBUG(W10N_DEBUG_KEY, "json_simple_type_array() - indx NOT equal to content length! indx:  " << indx << "  length: " << length << endl);
@@ -358,7 +380,7 @@ void W10nJsonTransform::writeAttributes(ostream *strm, libdap::AttrTable &attr_t
 						if(attr_table.get_attr_type(at_iter) == libdap::Attr_string || attr_table.get_attr_type(at_iter) == libdap::Attr_url){
 							*strm << "\"";
 							string value = (*values)[i] ;
-							*strm << w10n::backslash_escape(value, '"') ;
+							*strm << w10n::escape_for_json(value) ;
 							*strm << "\"";
 						}
 						else {
@@ -795,10 +817,8 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::BaseType *b, string 
 	*strm << child_indent << "\"data\": ";
 
 	if(b->type() == libdap::dods_str_c || b->type() == libdap::dods_url_c ){
-		// String values need to be escaped.
-		std::stringstream ss;
-		b->print_val(ss,"",false);
-		*strm << "\"" << w10n::backslash_escape(ss.str(), '"') << "\"";
+		libdap::Str *strVar = (libdap::Str *)b;
+		*strm << "\"" << w10n::escape_for_json(strVar->value()) << "\"";
 	}
 	else {
 		b->print_val(*strm, "", false);
@@ -864,26 +884,27 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string ind
 
 	case libdap::dods_str_c:
 	{
-		// @TODO Handle String and URL Arrays including backslash escaping double quotes in values.
-		//json_simple_type_array<string>(strm,a,indent,sendData);
-		//break;
-
+		json_simple_type_array<std::string>(strm,a,indent);
+		break;
+#if 0
 		string s = (string) "W10nJsonTransform:  Arrays of String objects not a supported return type.";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForVariable() - ERROR! " << s << endl);
         throw BESInternalError(s, __FILE__, __LINE__);
 		break;
+#endif
 	}
 
 	case libdap::dods_url_c:
 	{
-		// @TODO Handle String and URL Arrays including backslash escaping double quotes in values.
-		//json_simple_type_array<string>(strm,a,indent,sendData);
-		//break;
+		json_simple_type_array<std::string>(strm,a,indent);
+		break;
 
+#if 0
 		string s = (string) "W10nJsonTransform:  Arrays of URL objects not a supported return type.";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForVariable() - ERROR! " << s << endl);
         throw BESInternalError(s, __FILE__, __LINE__);
 		break;
+#endif
 	}
 
 	case libdap::dods_structure_c:

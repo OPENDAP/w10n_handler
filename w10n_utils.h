@@ -55,7 +55,9 @@ namespace w10n {
 						);
 
 
-    std::string backslash_escape(std::string source, char char_to_escape);
+    std::string escape_for_json(const std::string& input);
+
+    // std::string backslash_escape(std::string source, char char_to_escape);
 
     long computeConstrainedShape(libdap::Array *a, std::vector<unsigned int> *shape );
     void checkConstructorForW10nDataCompatibility(libdap::Constructor *constructor);

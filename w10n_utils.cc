@@ -41,6 +41,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <iostream>
+#include <iomanip>
 
 #include <BaseType.h>
 #include <DDS.h>
@@ -217,6 +218,62 @@ void eval_resource_path(
 
 
 
+
+std::string escape_for_json(const std::string &input) {
+    std::stringstream ss;
+    for (size_t i = 0; i < input.length(); ++i) {
+        if (unsigned(input[i]) < '\x20' || input[i] == '\\' || input[i] == '"') {
+            ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex << unsigned(input[i]);
+        } else {
+            ss << input[i];
+        }
+    }
+    return ss.str();
+}
+
+
+
+
+
+
+
+
+#if 0
+
+// Crappy version of JSON string escaping function
+/**
+ * Escape string content appropriate for use as a JSON string value.
+ */
+std::string escape_for_json(const std::string &input) {
+    std::ostringstream ss;
+    //for (auto iter = input.cbegin(); iter != input.cend(); iter++) {
+    //C++98/03:
+    for (std::string::const_iterator iter = input.begin(); iter != input.end(); iter++) {
+        switch (*iter) {
+            case '\\': ss << "\\\\"; break;
+            case '"': ss << "\\\""; break;
+            case '/': ss << "\\/"; break;
+            case '\b': ss << "\\b"; break;
+            case '\f': ss << "\\f"; break;
+            case '\n': ss << "\\n"; break;
+            case '\r': ss << "\\r"; break;
+            case '\t': ss << "\\t"; break;
+            default: ss << *iter; break;
+        }
+    }
+    return ss.str();
+}
+#endif
+
+
+#if 0
+
+/**
+ * Correct but limited utility version of a string escaping function
+ * because escaping multiple characters requires multiple passes which breaks things.
+ */
+
+
 /**
  * Replace every occurrence of 'char_to_escape' with the same preceded
  * by the backslash '\' character.
@@ -233,6 +290,7 @@ std::string backslash_escape(std::string source, char char_to_escape){
 	}
 	return escaped_result;
 }
+#endif
 
 
 long computeConstrainedShape(libdap::Array *a, std::vector<unsigned int> *shape ){
