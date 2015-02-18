@@ -35,6 +35,7 @@
 #include <fstream>
 #include <stddef.h>
 #include <string>
+#include <typeinfo>
 
 using std::ostringstream;
 using std::istringstream;
