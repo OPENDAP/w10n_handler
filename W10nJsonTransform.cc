@@ -780,8 +780,8 @@ void W10nJsonTransform::sendW10nDataForVariable(ostream *strm, libdap::BaseType 
 
 
 /**
- * Write the w10n json representation of the passed BaseType instance - which had better be one of the
- * atomic DAP types. If the parameter sendData is true then include the data.
+ * Write the w10n json data for the passed BaseType instance - which had better be one of the
+ * atomic DAP types.
  */
 void W10nJsonTransform::sendW10nData(ostream *strm, libdap::BaseType *b, string indent){
 
