@@ -18,16 +18,22 @@ AT_CHECK([besstandalone -c $abs_builddir/bes.conf -i $1 || true], [], [stdout], 
 AT_CHECK([diff -b -B $2 stdout || diff -b -B $2 stderr], [], [ignore],[],[])
 AT_CLEANUP])
 
+m4_define([_AT_BESCMD_PATTERN_TEST],   
+[AT_SETUP([BESCMD $1])
+AT_KEYWORDS([bescmd])
 
-# m4_define([AT_BESCMD_RESPONSE_TEST],
-# [_AT_BESCMD_TEST([$abs_builddir/baselines/$1], [$abs_builddir/baselines/$1.baseline])
-# ])
+AT_CHECK([besstandalone -c $abs_builddir/bes.conf -i $1 || true], [], [stdout], [stderr])
+AT_CHECK([grep "`cat $2`" stdout], [], [ignore], [], [])
 
+AT_CLEANUP])
 
 m4_define([AT_BESCMD_RESPONSE_TEST],
 [_AT_BESCMD_TEST([$abs_srcdir/baselines/$1], [$abs_srcdir/baselines/$1.baseline])
 ])
 
+m4_define([AT_BESCMD_RESPONSE_PATTERN_TEST],
+[_AT_BESCMD_PATTERN_TEST([$abs_srcdir/baselines/$1], [$abs_srcdir/baselines/$1.baseline])
+])
 
 AT_BESCMD_RESPONSE_TEST([ShowPathInfo_01.bescmd])
 AT_BESCMD_RESPONSE_TEST([ShowPathInfo_02.bescmd])
@@ -46,7 +52,13 @@ AT_BESCMD_RESPONSE_TEST([atomicTypes_varShort_data.bescmd])
 
 AT_BESCMD_RESPONSE_TEST([coads_meta.bescmd])
 AT_BESCMD_RESPONSE_TEST([coads_SST_meta.bescmd])
-AT_BESCMD_RESPONSE_TEST([coads_SST_data.bescmd])
+
+# Testing an error return. The error text is dependent on
+# the build options (--enable-develoepr) source code line 
+# numbers and when --enable-developers is used. Match a pattern
+# to make these kinds of tests more reliable. jhrg 3/2/15
+AT_BESCMD_RESPONSE_PATTERN_TEST([coads_SST_data.bescmd])
+
 AT_BESCMD_RESPONSE_TEST([coads_SST.SST_meta.bescmd])
 AT_BESCMD_RESPONSE_TEST([coads_SST.SST_CE_data.bescmd])
 AT_BESCMD_RESPONSE_TEST([coads_SST.COADSX_CE_meta.bescmd])
