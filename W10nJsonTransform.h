@@ -79,6 +79,12 @@ private:
 
     template<typename T>
     void json_simple_type_array(std::ostream *strm, libdap::Array *a, std::string indent);
+    void json_string_array(std::ostream *strm, libdap::Array *a, std::string indent);
+
+    void json_array_starter(ostream *strm, libdap::Array *a, string indent);
+    template<typename T> void json_simple_type_array_sender(ostream *strm, libdap::Array *a);
+    void json_string_array_sender(ostream *strm, libdap::Array *a);
+    void json_array_ender(ostream *strm, string indent);
 
     template<typename T>
     unsigned  int json_simple_type_array_worker(

@@ -72,7 +72,7 @@ template<typename T> unsigned  int W10nJsonTransform::json_simple_type_array_wor
 
 	unsigned int currentDimSize = (*shape)[currentDim];
 
-    for(int i=0; i<currentDimSize ;i++){
+    for(unsigned int i=0; i<currentDimSize ;i++){
 		if(currentDim < shape->size()-1){
 			BESDEBUG(W10N_DEBUG_KEY, "json_simple_type_array_worker() - Recursing! indx:  " << indx
 					<< " currentDim: " << currentDim
@@ -102,15 +102,122 @@ template<typename T> unsigned  int W10nJsonTransform::json_simple_type_array_wor
 	return indx;
 }
 
+void W10nJsonTransform::json_array_starter(ostream *strm, libdap::Array *a, std::string indent){
+
+
+	bool found_w10n_callback = false;
+	std::string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_callback: "<< w10n_callback << endl);
+
+
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - Processing Array of " << a->var()->type_name() << endl);
+
+
+	if(found_w10n_callback){
+		*strm << w10n_callback << "(";
+	}
+
+	*strm  << "{" << endl;
+
+	std::string child_indent = indent + _indent_increment;
+
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - Writing variable metadata..."  << endl);
+
+	writeVariableMetadata(strm,a,child_indent);
+	*strm << "," << endl;
+
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - Writing variable data..."  << endl);
+
+	// Data
+	*strm << child_indent << "\"data\": ";
+
+}
+void W10nJsonTransform::json_array_ender(ostream *strm, std::string indent){
+
+	bool found_w10n_meta_object = false;
+	std::string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_ender() - w10n_meta_object: "<< w10n_meta_object << endl);
+
+	bool found_w10n_callback = false;
+	std::string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_callback: "<< w10n_callback << endl);
+
+	std::string child_indent = indent + _indent_increment;
+
+
+	if(found_w10n_meta_object)
+		*strm << "," << endl << child_indent << w10n_meta_object << endl;
+	else
+		*strm << endl;
+
+	*strm << indent << "}" << endl;
+
+	if(found_w10n_callback){
+		*strm << ")";
+	}
+
+	*strm << endl;
+
+
+
+}
+/**
+ * Writes the w10n json representation of the passed DAP Array of simple types. If the
+ * parameter "sendData" evaluates to true then data will also be sent.
+ */
+template<typename T> void W10nJsonTransform::json_simple_type_array_sender(ostream *strm, libdap::Array *a){
+
+	bool found_w10n_flatten = false;
+	std::string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_sender() - w10n_flatten: "<< w10n_flatten << endl);
+
+	int numDim = a->dimensions(true);
+	vector<unsigned int> shape(numDim);
+	long length = w10n::computeConstrainedShape(a, &shape);
+
+	T *src = new T[length];
+	a->value(src);
+	unsigned int indx = json_simple_type_array_worker(strm, src, 0, &shape, 0, found_w10n_flatten);
+	delete src;
+
+	if(length != indx)
+		BESDEBUG(W10N_DEBUG_KEY, "json_simple_type_array_sender() - indx NOT equal to content length! indx:  " << indx << "  length: " << length << endl);
+
+}
 
 
 /**
  * Writes the w10n json representation of the passed DAP Array of simple types. If the
  * parameter "sendData" evaluates to true then data will also be sent.
  */
-template<typename T>void W10nJsonTransform::json_simple_type_array(ostream *strm, libdap::Array *a, string indent){
+void W10nJsonTransform::json_string_array_sender(ostream *strm, libdap::Array *a){
+
+	bool found_w10n_flatten = false;
+	std::string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_sender() - w10n_flatten: "<< w10n_flatten << endl);
+
+	int numDim = a->dimensions(true);
+	vector<unsigned int> shape(numDim);
+	long length = w10n::computeConstrainedShape(a, &shape);
+
+	// The string type utilizes a specialized version of libdap:Array.value()
+	vector<std::string> sourceValues;
+	a->value(sourceValues);
+	unsigned int indx = json_simple_type_array_worker(strm, (std::string *)(&sourceValues[0]), 0, &shape, 0, found_w10n_flatten);
+
+	if(length != indx)
+		BESDEBUG(W10N_DEBUG_KEY, "json_simple_type_array_sender() - indx NOT equal to content length! indx:  " << indx << "  length: " << length << endl);
+
+}
 
 
+/**
+ * Writes the w10n json representation of the passed DAP Array of simple types. If the
+ * parameter "sendData" evaluates to true then data will also be sent.
+ */
+template<typename T>void W10nJsonTransform::json_simple_type_array(ostream *strm, libdap::Array *a, std::string indent){
+
+#if 0
 	bool found_w10n_meta_object = false;
 	string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_meta_object: "<< w10n_meta_object << endl);
@@ -150,26 +257,89 @@ template<typename T>void W10nJsonTransform::json_simple_type_array(ostream *strm
 	*strm << child_indent << "\"data\": ";
 	unsigned int indx;
 
-
-
-	if(typeid(T) == typeid(std::string)){
-		// The string type utilizes a specialized version of libdap:Array.value()
-		vector<std::string> sourceValues;
-		a->value(sourceValues);
-		indx = json_simple_type_array_worker(strm, (std::string *)(&sourceValues[0]), 0, &shape, 0, found_w10n_flatten);
-	}
-	else {
-		T *src = new T[length];
-		a->value(src);
-		indx = json_simple_type_array_worker(strm, src, 0, &shape, 0, found_w10n_flatten);
-		delete src;
-	}
-
-
+	T *src = new T[length];
+	a->value(src);
+	indx = json_simple_type_array_worker(strm, src, 0, &shape, 0, found_w10n_flatten);
+	delete src;
 
 	if(length != indx)
 		BESDEBUG(W10N_DEBUG_KEY, "json_simple_type_array() - indx NOT equal to content length! indx:  " << indx << "  length: " << length << endl);
 
+	if(found_w10n_meta_object)
+		*strm << "," << endl << child_indent << w10n_meta_object << endl;
+	else
+		*strm << endl;
+
+	*strm << indent << "}" << endl;
+
+	if(found_w10n_callback){
+		*strm << ")";
+	}
+
+	*strm << endl;
+
+#endif
+
+	json_array_starter(strm,a, indent);
+	json_simple_type_array_sender<T>(strm,a);
+	json_array_ender(strm, indent);
+
+}
+
+
+/**
+ * Writes the w10n json representation of the passed DAP Array of simple types. If the
+ * parameter "sendData" evaluates to true then data will also be sent.
+ */
+void W10nJsonTransform::json_string_array(ostream *strm, libdap::Array *a, std::string indent){
+
+#if 0
+	bool found_w10n_meta_object = false;
+	string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - w10n_meta_object: "<< w10n_meta_object << endl);
+
+	bool found_w10n_callback = false;
+	string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - w10n_callback: "<< w10n_callback << endl);
+
+	bool found_w10n_flatten = false;
+	string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - w10n_flatten: "<< w10n_flatten << endl);
+
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - Processing Array of " << a->var()->type_name() << endl);
+
+
+	if(found_w10n_callback){
+		*strm << w10n_callback << "(";
+	}
+
+	*strm  << "{" << endl;
+
+	string child_indent = indent + _indent_increment;
+
+	int numDim = a->dimensions(true);
+	vector<unsigned int> shape(numDim);
+	long length = w10n::computeConstrainedShape(a, &shape);
+
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - Writing variable metadata..."  << endl);
+
+	writeVariableMetadata(strm,a,child_indent);
+	*strm << "," << endl;
+
+	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - Writing variable data..."  << endl);
+
+	// Data
+	*strm << child_indent << "\"data\": ";
+	unsigned int indx;
+
+	// The string type utilizes a specialized version of libdap:Array.value()
+	vector<std::string> sourceValues;
+	a->value(sourceValues);
+	indx = json_simple_type_array_worker(strm, (std::string *)(&sourceValues[0]), 0, &shape, 0, found_w10n_flatten);
+
+
+	if(length != indx)
+		BESDEBUG(W10N_DEBUG_KEY, "json_simple_type_array_string() - indx NOT equal to content length! indx:  " << indx << "  length: " << length << endl);
 
 
 	if(found_w10n_meta_object)
@@ -185,17 +355,19 @@ template<typename T>void W10nJsonTransform::json_simple_type_array(ostream *strm
 
 	*strm << endl;
 
+#endif
 
-	//*strm  << "}" << endl;
+	json_array_starter(strm,a, indent);
+	json_string_array_sender(strm,a);
+	json_array_ender(strm, indent);
 
 }
-
 
 
 /**
  * Writes the w10n json opener for the Dataset, including name and top level DAP attributes.
  */
-void W10nJsonTransform::writeDatasetMetadata(ostream *strm, libdap::DDS *dds, string indent){
+void W10nJsonTransform::writeDatasetMetadata(ostream *strm, libdap::DDS *dds, std::string indent){
 
 	// Name
 	*strm << indent << "\"name\": \""<< dds->get_dataset_name() << "\"," << endl;
@@ -211,7 +383,7 @@ void W10nJsonTransform::writeDatasetMetadata(ostream *strm, libdap::DDS *dds, st
  * Writes w10n json opener for a DAP object that is seen as a "leaf" in w10n semantics.
  * Header includes object name. attributes, and w10n type.
  */
-void W10nJsonTransform::writeVariableMetadata(ostream *strm, libdap::BaseType *bt, string indent){
+void W10nJsonTransform::writeVariableMetadata(ostream *strm, libdap::BaseType *bt, std::string indent){
 
 	// Name
 	*strm << indent << "\"name\": \""<< bt->name() << "\"," << endl;
@@ -248,17 +420,17 @@ void W10nJsonTransform::writeVariableMetadata(ostream *strm, libdap::BaseType *b
  * @throws BESInternalError if dds provided is empty or not read, if the
  * file is not specified or failed to create the netcdf file
  */
-W10nJsonTransform::W10nJsonTransform(libdap::DDS *dds, BESDataHandlerInterface &dhi, const string &localfile) :
+W10nJsonTransform::W10nJsonTransform(libdap::DDS *dds, BESDataHandlerInterface &dhi, const std::string &localfile) :
         _dds(dds), _localfile(localfile), _indent_increment("  "), _ostrm(0), _usingTempFile(false)
 {
     if (!_dds){
-    	string msg = "W10nJsonTransform:  ERROR! A null DDS reference was passed to the constructor";
+    	std::string msg = "W10nJsonTransform:  ERROR! A null DDS reference was passed to the constructor";
 	    BESDEBUG(W10N_DEBUG_KEY, msg << endl);
         throw BESInternalError(msg, __FILE__, __LINE__);
     }
 
     if (_localfile.empty()){
-    	string msg = "W10nJsonTransform:  An empty local file name passed to constructor";
+    	std::string msg = "W10nJsonTransform:  An empty local file name passed to constructor";
 	    BESDEBUG(W10N_DEBUG_KEY, msg << endl);
         throw BESInternalError(msg, __FILE__, __LINE__);
     }
@@ -268,13 +440,13 @@ W10nJsonTransform::W10nJsonTransform(libdap::DDS *dds, BESDataHandlerInterface &
         _dds(dds), _localfile(""), _indent_increment("  "), _ostrm(ostrm), _usingTempFile(false)
 {
     if (!_dds){
-    	string msg = "W10nJsonTransform:  ERROR! A null DDS reference was passed to the constructor";
+    	std::string msg = "W10nJsonTransform:  ERROR! A null DDS reference was passed to the constructor";
 	    BESDEBUG(W10N_DEBUG_KEY, msg << endl);
         throw BESInternalError(msg, __FILE__, __LINE__);
     }
 
     if (!_ostrm){
-    	string msg = "W10nJsonTransform:  ERROR! A null std::ostream pointer was passed to the constructor";
+    	std::string msg = "W10nJsonTransform:  ERROR! A null std::ostream pointer was passed to the constructor";
 	    BESDEBUG(W10N_DEBUG_KEY, msg << endl);
     	throw BESInternalError(msg, __FILE__, __LINE__);
     }
@@ -313,9 +485,9 @@ void W10nJsonTransform::dump(ostream &strm) const
  * Write the w10n json representation of the passed DAP AttrTable instance.
  * Supports multi-valued attributes and nested attributes.
  */
-void W10nJsonTransform::writeAttributes(ostream *strm, libdap::AttrTable &attr_table, string  indent){
+void W10nJsonTransform::writeAttributes(ostream *strm, libdap::AttrTable &attr_table, std::string  indent){
 
-	string child_indent = indent + _indent_increment;
+	std::string child_indent = indent + _indent_increment;
 
 	// Start the attributes block
 	*strm << indent << "\"attributes\": [";
@@ -369,9 +541,9 @@ void W10nJsonTransform::writeAttributes(ostream *strm, libdap::AttrTable &attr_t
 
 					// Open value array
 					*strm  << "\"value\": [";
-					vector<string> *values = attr_table.get_attr_vector(at_iter);
+					vector<std::string> *values = attr_table.get_attr_vector(at_iter);
 					// write values
-					for(int i=0; i<values->size() ;i++){
+					for(std::vector<std::string>::size_type i=0; i<values->size() ;i++){
 
 						// not first thing? better use a comma...
 						if(i>0)
@@ -380,7 +552,7 @@ void W10nJsonTransform::writeAttributes(ostream *strm, libdap::AttrTable &attr_t
 						// Escape the double quotes found in String and URL type attribute values.
 						if(attr_table.get_attr_type(at_iter) == libdap::Attr_string || attr_table.get_attr_type(at_iter) == libdap::Attr_url){
 							*strm << "\"";
-							string value = (*values)[i] ;
+							std::string value = (*values)[i] ;
 							*strm << w10n::escape_for_json(value) ;
 							*strm << "\"";
 						}
@@ -417,7 +589,7 @@ std::ostream *W10nJsonTransform::getOutputStream(){
 	if (!_ostrm) {
 		_tempFile.open(_localfile.c_str(), std::fstream::out);
 		if (!_tempFile){
-			string msg = "Could not open temp file: " + _localfile;
+			std::string msg = "Could not open temp file: " + _localfile;
 		    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::getOutputStream() - ERROR! "<< msg << endl);
 		    throw BESInternalError(msg, __FILE__, __LINE__);
 		}
@@ -440,7 +612,7 @@ void W10nJsonTransform::sendW10nMetaForDDS(){
 
 	std::ostream *strm = getOutputStream();
 	try {
-		sendW10nMetaForDDS(_ostrm, _dds, "");
+		sendW10nMetaForDDS(strm, _dds, "");
 		releaseOutputStream();
 	}
 	catch (...) {
@@ -452,16 +624,16 @@ void W10nJsonTransform::sendW10nMetaForDDS(){
 
 
 
-void W10nJsonTransform::sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, string indent){
+void W10nJsonTransform::sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, std::string indent){
 
 
 
 	bool found_w10n_meta_object = false;
-	string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
+	std::string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_meta_object: "<< w10n_meta_object << endl);
 
 	bool found_w10n_callback = false;
-	string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
+	std::string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_callback: "<< w10n_callback << endl);
 
 
@@ -497,7 +669,7 @@ void W10nJsonTransform::sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, stri
 
 	// Declare the top level node
 	*strm << "{" << endl ;
-	string child_indent = indent + _indent_increment;
+	std::string child_indent = indent + _indent_increment;
 
 	// Write the top level node's metadata (name & attributes)
 	writeDatasetMetadata(strm, dds, child_indent);
@@ -508,7 +680,7 @@ void W10nJsonTransform::sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, stri
 	*strm << child_indent << "\"leaves\": [";
 	if(leaves.size() > 0)
 		*strm << endl;
-	for(int l=0; l< leaves.size(); l++){
+	for(std::vector<libdap::BaseType *>::size_type l=0; l< leaves.size(); l++){
 		libdap::BaseType *v = leaves[l];
 		BESDEBUG(W10N_DEBUG_KEY, "Processing LEAF: " << v->name() << endl);
 		if( l>0 ){
@@ -526,7 +698,7 @@ void W10nJsonTransform::sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, stri
 	*strm << child_indent << "\"nodes\": [";
 	if(nodes.size() > 0)
 		*strm << endl;
-	for(int n=0; n< nodes.size(); n++){
+	for(std::vector<libdap::BaseType *>::size_type n=0; n< nodes.size(); n++){
 		libdap::BaseType *v = nodes[n];
 		BESDEBUG(W10N_DEBUG_KEY, "Processing NODE: " << v->name() << endl);
 		if( n>0 ){
@@ -556,25 +728,25 @@ void W10nJsonTransform::sendW10nMetaForDDS(ostream *strm, libdap::DDS *dds, stri
 
 }
 
-void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType *bt, string indent, bool isTop){
+void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType *bt, std::string indent, bool isTop){
 
 
 
 	bool found_w10n_meta_object = false;
-	string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
+	std::string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_meta_object: "<< w10n_meta_object << endl);
 
 	bool found_w10n_callback = false;
-	string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
+	std::string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_callback: "<< w10n_callback << endl);
 
 	bool found_w10n_flatten = false;
-	string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
+	std::string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_flatten: "<< w10n_flatten << endl);
 
 
 	bool found_w10n_traverse = false;
-	string w10n_traverse = BESContextManager::TheManager()->get_context(W10N_TRAVERSE_KEY,found_w10n_traverse);
+	std::string w10n_traverse = BESContextManager::TheManager()->get_context(W10N_TRAVERSE_KEY,found_w10n_traverse);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_traverse: "<< w10n_traverse << endl);
 
 
@@ -586,7 +758,7 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 
 	*strm << indent << "{" << endl;\
 
-	string child_indent = indent + _indent_increment;
+	std::string child_indent = indent + _indent_increment;
 
 	writeVariableMetadata(strm,bt,child_indent);
 
@@ -605,7 +777,7 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 		}
 		else {
 			*strm << child_indent << "\"shape\": [";
-			for(int i=0; i<shape.size() ;i++){
+			for(std::vector<unsigned int>::size_type i=0; i<shape.size() ;i++){
 				if(i>0)
 					*strm << ",";
 				*strm << shape[i];
@@ -644,7 +816,7 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 			*strm << child_indent << "\"leaves\": [";
 			if(leaves.size() > 0)
 				*strm << endl;
-			for(int l=0; l< leaves.size(); l++){
+			for(std::vector<libdap::BaseType *>::size_type l=0; l< leaves.size(); l++){
 				libdap::BaseType *v = leaves[l];
 				BESDEBUG(W10N_DEBUG_KEY, "Processing LEAF: " << v->name() << endl);
 				if( l>0 ){
@@ -663,7 +835,7 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 			*strm << child_indent << "\"nodes\": [";
 			if(nodes.size() > 0)
 				*strm << endl;
-			for(int n=0; n< nodes.size(); n++){
+			for(std::vector<libdap::BaseType *>::size_type n=0; n< nodes.size(); n++){
 				libdap::BaseType *v = nodes[n];
 				BESDEBUG(W10N_DEBUG_KEY, "Processing NODE: " << v->name() << endl);
 				if( n>0 ){
@@ -707,13 +879,13 @@ void W10nJsonTransform::sendW10nMetaForVariable(ostream *strm, libdap::BaseType 
 
 
 
-void W10nJsonTransform::sendW10nMetaForVariable(string &vName, bool isTop){
+void W10nJsonTransform::sendW10nMetaForVariable(std::string &vName, bool isTop){
 
 
 	libdap::BaseType *bt = _dds->var(vName);
 
 	if(!bt){
-		string msg = "The dataset does not contain a variable named '" + vName +"'";
+		std::string msg = "The dataset does not contain a variable named '" + vName +"'";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForVariable() - ERROR! " << msg << endl);
 		throw BESSyntaxUserError(msg, __FILE__, __LINE__);
 	}
@@ -734,20 +906,20 @@ void W10nJsonTransform::sendW10nMetaForVariable(string &vName, bool isTop){
 
 
 
-void W10nJsonTransform::sendW10nDataForVariable(string &vName){
+void W10nJsonTransform::sendW10nDataForVariable(std::string &vName){
 
 
 	libdap::BaseType *bt = _dds->var(vName);
 
 	if(!bt){
-		string msg = "The dataset does not contain a variable named '" + vName +"'";
+		std::string msg = "The dataset does not contain a variable named '" + vName +"'";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nDataForVariable() - ERROR! " << msg << endl);
 		throw BESSyntaxUserError(msg, __FILE__, __LINE__);
 	}
 
 	std::ostream *strm = getOutputStream();
 	try {
-		sendW10nDataForVariable(_ostrm, bt, "");
+		sendW10nDataForVariable(strm, bt, "");
 		releaseOutputStream();
 	}
 	catch (...) {
@@ -757,7 +929,7 @@ void W10nJsonTransform::sendW10nDataForVariable(string &vName){
 
 }
 
-void W10nJsonTransform::sendW10nDataForVariable(ostream *strm, libdap::BaseType *bt, string indent){
+void W10nJsonTransform::sendW10nDataForVariable(ostream *strm, libdap::BaseType *bt, std::string indent){
 
 	if(bt->is_simple_type()){
 
@@ -769,7 +941,7 @@ void W10nJsonTransform::sendW10nDataForVariable(ostream *strm, libdap::BaseType 
 
 	}
 	else {
-		string msg = "The variable '" + bt->name() +"' is not a simple type or an Array of simple types. ";
+		std::string msg = "The variable '" + bt->name() +"' is not a simple type or an Array of simple types. ";
 		msg += "The w10n protocol does not support the transmission of data for complex types.";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nDataForVariable() - ERROR! " << msg << endl);
 		throw BESSyntaxUserError(msg, __FILE__, __LINE__);
@@ -783,27 +955,27 @@ void W10nJsonTransform::sendW10nDataForVariable(ostream *strm, libdap::BaseType 
  * Write the w10n json data for the passed BaseType instance - which had better be one of the
  * atomic DAP types.
  */
-void W10nJsonTransform::sendW10nData(ostream *strm, libdap::BaseType *b, string indent){
+void W10nJsonTransform::sendW10nData(ostream *strm, libdap::BaseType *b, std::string indent){
 
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nData() - Sending data for simple type "<< b->name() << endl);
 
 	bool found_w10n_meta_object = false;
-	string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
+	std::string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_meta_object: "<< w10n_meta_object << endl);
 
 	bool found_w10n_callback = false;
-	string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
+	std::string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_callback: "<< w10n_callback << endl);
 
 	bool found_w10n_flatten = false;
-	string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
+	std::string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
 	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_flatten: "<< w10n_flatten << endl);
 
 
 
 
 
-	string child_indent = indent + _indent_increment;
+	std::string child_indent = indent + _indent_increment;
 
 	if(found_w10n_callback){
 		*strm << w10n_callback << "(";
@@ -846,7 +1018,7 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::BaseType *b, string 
 }
 
 
-void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string indent){
+void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, std::string indent){
 
 
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::transform() - Processing Array. "
@@ -886,7 +1058,7 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string ind
 
 	case libdap::dods_str_c:
 	{
-		json_simple_type_array<std::string>(strm,a,indent);
+		json_string_array(strm,a,indent);
 		break;
 #if 0
 		string s = (string) "W10nJsonTransform:  Arrays of String objects not a supported return type.";
@@ -898,7 +1070,7 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string ind
 
 	case libdap::dods_url_c:
 	{
-		json_simple_type_array<std::string>(strm,a,indent);
+		json_string_array(strm,a,indent);
 		break;
 
 #if 0
@@ -911,14 +1083,14 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string ind
 
 	case libdap::dods_structure_c:
 	{
-		string s = (string) "W10nJsonTransform:  Arrays of Structure objects not a supported return type.";
+		std::string s = (std::string) "W10nJsonTransform:  Arrays of Structure objects not a supported return type.";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForVariable() - ERROR! " << s << endl);
         throw BESInternalError(s, __FILE__, __LINE__);
 		break;
 	}
 	case libdap::dods_grid_c:
 	{
-		string s = (string) "W10nJsonTransform:  Arrays of Grid objects not a supported return type.";
+		std::string s = (std::string) "W10nJsonTransform:  Arrays of Grid objects not a supported return type.";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForVariable() - ERROR! " << s << endl);
         throw BESInternalError(s, __FILE__, __LINE__);
 		break;
@@ -926,7 +1098,7 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string ind
 
 	case libdap::dods_sequence_c:
 	{
-		string s = (string) "W10nJsonTransform:  Arrays of Sequence objects not a supported return type.";
+		std::string s = (std::string) "W10nJsonTransform:  Arrays of Sequence objects not a supported return type.";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForVariable() - ERROR! " << s << endl);
         throw BESInternalError(s, __FILE__, __LINE__);
 		break;
@@ -934,7 +1106,7 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string ind
 
 	case libdap::dods_array_c:
 	{
-		string s = (string) "W10nJsonTransform:  Arrays of Array objects not a supported return type.";
+		std::string s = (std::string) "W10nJsonTransform:  Arrays of Array objects not a supported return type.";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForVariable() - ERROR! " << s << endl);
         throw BESInternalError(s, __FILE__, __LINE__);
 		break;
@@ -947,7 +1119,7 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string ind
 	case libdap::dods_enum_c:
 	case libdap::dods_group_c:
 	{
-		string s = (string) "W10nJsonTransform:  DAP4 types not yet supported.";
+		std::string s = (std::string) "W10nJsonTransform:  DAP4 types not yet supported.";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForVariable() - ERROR! " << s << endl);
         throw BESInternalError(s, __FILE__, __LINE__);
 		break;
@@ -955,7 +1127,7 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, string ind
 
 	default:
 	{
-		string s = (string) "W10nJsonTransform:  Unrecognized type.";
+		std::string s = (std::string) "W10nJsonTransform:  Unrecognized type.";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::sendW10nMetaForVariable() - ERROR! " << s << endl);
         throw BESInternalError(s, __FILE__, __LINE__);
 		break;
