@@ -35,7 +35,7 @@ W10N_SRC = w10n_utils.cc W10NModule.cc ShowPathInfoResponseHandler.cc ShowPathIn
 	W10nJsonTransform.cc W10nJsonTransmitter.cc W10nJsonRequestHandler.cc
 
 W10N_HDR = w10n_utils.h  W10NModule.h  ShowPathInfoResponseHandler.h  ShowPathInfoCommand.h \
-	W10nJsonTransform.h W10nJsonTransmitter.h W10nJsonRequestHandler.h
+	W10nJsonTransform.h W10nJsonTransmitter.h W10nJsonRequestHandler.h W10NNames.h
 
 EXTRA_DIST = data COPYING w10n.conf.in w10n_handler.spec doxy.conf
 

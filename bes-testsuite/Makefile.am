@@ -26,6 +26,20 @@ $(srcdir)/package.m4 bes.conf.in bes.conf.modules.in
 
 DISTCLEANFILES = bes.conf
 
+if DAP_MODULES
+BES_CONF_IN = bes.conf.modules.in
+else
+BES_CONF_IN = bes.conf.in
+endif
+
+# Build the bes.conf used for testing so that the value substituted for
+# @abs_top_srcdir@ does not contain '../'. This happens when using 
+# configure's value for the parameter when running the distcheck target.
+bes.conf: $(BES_CONF_IN) $(top_srcdir)/configure.ac
+	@clean_abs_top_srcdir=`echo ${abs_top_srcdir} | sed 's/\(.*\)\/\(.[^\/]*\)\/\.\./\1/g'`; \
+	sed -e "s%[@]abs_top_srcdir[@]%$$clean_abs_top_srcdir%" \
+		-e "s%[@]abs_top_builddir[@]%${abs_top_builddir}%" $< > bes.conf
+
 ############## Autotest follows #####################
 
 AUTOM4TE = autom4te
