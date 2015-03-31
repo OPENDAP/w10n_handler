@@ -35,11 +35,23 @@ TESTS = $(UNIT_TESTS)
 # Unit Tests
 #
 
+if CPPUNIT
 UNIT_TESTS = W10nTest
+else
+UNIT_TESTS =
+
+check-local:
+	@echo ""
+	@echo "**********************************************************"
+	@echo "You must have cppunit 1.12.x or greater installed to run *"
+	@echo "check target in unit-tests directory                     *"
+	@echo "**********************************************************"
+	@echo ""
+endif
 
 OBJS = ../w10n_utils.o
 
-W10nTest_SOURCES = W10nTest.cc $(SRCS)
+W10nTest_SOURCES = W10nTest.cc
 W10nTest_LDADD = $(OBJS) $(LIBADD)
 
 noinst_HEADERS = test_config.h
