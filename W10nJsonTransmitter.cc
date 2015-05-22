@@ -55,6 +55,7 @@
 #include <BESDapNames.h>
 #include <BESDataNames.h>
 #include <BESDebug.h>
+#include <BESStopWatch.h>
 #include <BESSyntaxUserError.h>
 
 #include "W10nJsonTransmitter.h"
@@ -178,6 +179,10 @@ string W10nJsonTransmitter::getProjectedVariableName(const string &constraintExp
  */
 void W10nJsonTransmitter::send_data(BESResponseObject *obj, BESDataHandlerInterface &dhi)
 {
+	BESStopWatch sw;
+	if (BESISDEBUG( TIMING_LOG ))
+		sw.start("W10nJsonTransmitter::send_data", dhi.data[REQUEST_ID]);
+
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - BEGIN." << endl);
 
     BESDataDDSResponse *bdds = dynamic_cast<BESDataDDSResponse *>(obj);
@@ -308,6 +313,10 @@ void W10nJsonTransmitter::send_data(BESResponseObject *obj, BESDataHandlerInterf
  */
 void W10nJsonTransmitter::send_metadata(BESResponseObject *obj, BESDataHandlerInterface &dhi)
 {
+	BESStopWatch sw;
+	if (BESISDEBUG( TIMING_LOG ))
+		sw.start("W10nJsonTransmitter::send_metadata", dhi.data[REQUEST_ID]);
+
     BESDDSResponse *bdds = dynamic_cast<BESDDSResponse *>(obj);
     if (!bdds)
         throw BESInternalError("cast error", __FILE__, __LINE__);

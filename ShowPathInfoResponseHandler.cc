@@ -44,6 +44,7 @@
 #include "BESCatalogUtils.h"
 #include "BESSyntaxUserError.h"
 #include "BESNotFoundError.h"
+#include "BESStopWatch.h"
 
 ShowPathInfoResponseHandler::ShowPathInfoResponseHandler( const string &name ): BESResponseHandler( name )
 {
@@ -64,6 +65,10 @@ ShowPathInfoResponseHandler::~ShowPathInfoResponseHandler( )
  * @see BESRequestHandlerList
  */
 void ShowPathInfoResponseHandler::execute(BESDataHandlerInterface &dhi) {
+
+	BESStopWatch sw;
+	if (BESISDEBUG( TIMING_LOG ))
+		sw.start("ShowPathInfoResponseHandler::execute", dhi.data[REQUEST_ID]);
 
     BESDEBUG(W10N_DEBUG_KEY, "ShowPathInfoResponseHandler::execute() - BEGIN ############################################################## BEGIN" << endl ) ;
 
