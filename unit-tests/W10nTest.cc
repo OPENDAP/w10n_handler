@@ -231,8 +231,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION(W10nTest);
 int main(int argc, char*argv[]) {
 
     GetOpt getopt(argc, argv, "db");
-    char option_char, *debugopt;
-    while ((option_char = getopt()) != EOF)
+    int option_char, *debugopt;
+    while ((option_char = getopt()) != -1)
         switch (option_char) {
         case 'd':
             debug = true;  // debug is a static global
