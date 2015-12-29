@@ -47,6 +47,8 @@
 #include <ConstraintEvaluator.h>
 
 #include <BESInternalError.h>
+#include <BESDapError.h>
+#include <BESDapError.h>
 #include <TheBESKeys.h>
 #include <BESContextManager.h>
 #include <BESDataDDSResponse.h>
@@ -261,6 +263,9 @@ void W10nJsonTransmitter::send_data(BESResponseObject *obj, BESDataHandlerInterf
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
         throw BESDapError(msg, 0, e.get_error_code(),__FILE__, __LINE__);
     }
+    catch (BESError &e){
+        throw;
+    }
     catch (...) {
     	string msg = "Failed to read data: Unknown exception caught";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
@@ -277,6 +282,11 @@ void W10nJsonTransmitter::send_data(BESResponseObject *obj, BESDataHandlerInterf
         BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_metadata() - Sending w10n meta response for variable "
         		<< varName << endl);
     	ft.sendW10nDataForVariable(varName);
+    }
+    catch (Error &e) {
+        string msg = "Failed to transmit data as w10n JSON. Msg: " + e.get_error_message();
+        BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
+        throw BESDapError(msg, 0, e.get_error_code(),__FILE__, __LINE__);
     }
     catch (BESError &e) {
     	string msg = "Failed to transmit data as w10n JSON. Msg: " + e.get_message();
@@ -342,7 +352,9 @@ void W10nJsonTransmitter::send_metadata(BESResponseObject *obj, BESDataHandlerIn
         eval.parse_constraint(ce, *dds);
     }
     catch (Error &e) {
-        throw BESInternalError("Failed to parse the constraint expression: " + e.get_error_message(), __FILE__, __LINE__);
+        string msg = "Failed to parse the constraint expression. Msg: "+ e.get_error_message();
+        BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
+        throw BESDapError(msg, false, e.get_error_code(),__FILE__, __LINE__);
     }
     catch (...) {
         throw BESInternalError("Failed to parse the constraint expression: Unknown exception caught", __FILE__, __LINE__);
