@@ -404,7 +404,7 @@ void W10nJsonTransform::writeVariableMetadata(ostream *strm, libdap::BaseType *b
  * @throws BESInternalError if dds provided is empty or not read, if the
  * file is not specified or failed to create the netcdf file
  */
-W10nJsonTransform::W10nJsonTransform(libdap::DDS *dds, BESDataHandlerInterface &dhi, const std::string &localfile) :
+W10nJsonTransform::W10nJsonTransform(libdap::DDS *dds, BESDataHandlerInterface &, const std::string &localfile) :
     _dds(dds), _localfile(localfile), _indent_increment("  "), _ostrm(0), _usingTempFile(false)
 {
     if (!_dds) {
@@ -420,7 +420,7 @@ W10nJsonTransform::W10nJsonTransform(libdap::DDS *dds, BESDataHandlerInterface &
     }
 }
 
-W10nJsonTransform::W10nJsonTransform(libdap::DDS *dds, BESDataHandlerInterface &dhi, std::ostream *ostrm) :
+W10nJsonTransform::W10nJsonTransform(libdap::DDS *dds, BESDataHandlerInterface &, std::ostream *ostrm) :
     _dds(dds), _localfile(""), _indent_increment("  "), _ostrm(ostrm), _usingTempFile(false)
 {
     if (!_dds) {
