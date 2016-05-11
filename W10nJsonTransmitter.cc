@@ -194,7 +194,7 @@ void W10nJsonTransmitter::send_data(BESResponseObject *obj, BESDataHandlerInterf
         throw BESInternalError(msg, __FILE__, __LINE__);
     }
 
-    DataDDS *dds = bdds->get_dds();
+    DDS *dds = bdds->get_dds();
     if (!dds){
     	string msg = "No DataDDS has been created for transmit";
 	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
@@ -243,7 +243,7 @@ void W10nJsonTransmitter::send_data(BESResponseObject *obj, BESDataHandlerInterf
         // Handle *functional* constraint expressions specially
         if (eval.function_clauses()) {
             BESDEBUG(W10N_DEBUG_KEY, "processing a functional constraint clause(s)." << endl);
-            DataDDS *tmp_dds = eval.eval_function_clauses(*dds);
+            DDS *tmp_dds = eval.eval_function_clauses(*dds);
             bdds->set_dds(tmp_dds);
             delete dds;
             dds = tmp_dds;
