@@ -37,9 +37,6 @@
 
 class BESContainer;
 
-using namespace libdap;
-
-
 /** @brief BESTransmitter class named "json" that transmits an OPeNDAP
  * data object as a JSON file
  *
@@ -51,12 +48,14 @@ using namespace libdap;
  */
 class W10nJsonTransmitter: public BESBasicTransmitter {
 private:
-    static void return_temp_stream(const string &filename, ostream &strm);
-    static string temp_dir;
-    static string getProjectionClause(const string &constraintExpression);
-    static void checkConstraintForW10nCompatibility(const string &ce);
-    static string getProjectedVariableName(const string &constraintExpression);
+    static void return_temp_stream(const std::string &filename, std::ostream &strm);
+    static std::string temp_dir;
+    static std::string getProjectionClause(const std::string &constraintExpression);
+    static void checkConstraintForW10nCompatibility(const std::string &ce);
+    static std::string getProjectedVariableName(const std::string &constraintExpression);
     static void cleanupW10nContexts();
+
+    friend struct ContextCleanup;   // used to ensure cleanupW10nContexts is called
 
 public:
     W10nJsonTransmitter();
@@ -64,7 +63,6 @@ public:
 
     static void send_data(BESResponseObject *obj, BESDataHandlerInterface &dhi);
     static void send_metadata(BESResponseObject *obj, BESDataHandlerInterface &dhi);
-    //static void send_json(DDS *dds, ConstraintEvaluator &eval, BESDataHandlerInterface &dhi, bool sendData);
 };
 
 #endif /* A_W10nJsonTransmitter_h */

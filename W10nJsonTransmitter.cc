@@ -59,6 +59,7 @@
 #include <BESDebug.h>
 #include <BESStopWatch.h>
 #include <BESSyntaxUserError.h>
+#include <BESDapResponseBuilder.h>
 
 #include "W10nJsonTransmitter.h"
 
@@ -66,15 +67,14 @@
 #include "W10NNames.h"
 #include "w10n_utils.h"
 
-
 using namespace ::libdap;
 
 #define W10N_JSON_TEMP_DIR "/tmp"
 
 string W10nJsonTransmitter::temp_dir;
 
-/** @brief Construct the W10nJsonTransmitter
- *
+/**
+ * @brief Construct the W10nJsonTransmitter
  *
  * The transmitter is created to add the ability to return OPeNDAP data
  * objects (DataDDS) as abstract object representation JSON documents.
@@ -84,10 +84,11 @@ string W10nJsonTransmitter::temp_dir;
  * FoJson.Tempdir. If this variable is not found or is not set then it
  * defaults to the macro definition FO_JSON_TEMP_DIR.
  */
-W10nJsonTransmitter::W10nJsonTransmitter() : BESBasicTransmitter()
+W10nJsonTransmitter::W10nJsonTransmitter() :
+    BESBasicTransmitter()
 {
     add_method(DATA_SERVICE, W10nJsonTransmitter::send_data);
-    add_method(DDX_SERVICE,  W10nJsonTransmitter::send_metadata);
+    add_method(DDX_SERVICE, W10nJsonTransmitter::send_metadata);
 
     if (W10nJsonTransmitter::temp_dir.empty()) {
         // Where is the temp directory for creating these files
@@ -95,76 +96,77 @@ W10nJsonTransmitter::W10nJsonTransmitter() : BESBasicTransmitter()
         string key = "W10nJson.Tempdir";
         TheBESKeys::TheKeys()->get_value(key, W10nJsonTransmitter::temp_dir, found);
         if (!found || W10nJsonTransmitter::temp_dir.empty()) {
-        	W10nJsonTransmitter::temp_dir = W10N_JSON_TEMP_DIR;
+            W10nJsonTransmitter::temp_dir = W10N_JSON_TEMP_DIR;
         }
         string::size_type len = W10nJsonTransmitter::temp_dir.length();
         if (W10nJsonTransmitter::temp_dir[len - 1] == '/') {
-        	W10nJsonTransmitter::temp_dir = W10nJsonTransmitter::temp_dir.substr(0, len - 1);
+            W10nJsonTransmitter::temp_dir = W10nJsonTransmitter::temp_dir.substr(0, len - 1);
         }
     }
 }
-
-
 
 /**
  * Checks the supplied constraint expression by first removing any selection clauses and then
  * verifies that the projection clause contains only a single variable reference.
  */
-void W10nJsonTransmitter::checkConstraintForW10nCompatibility(const string &ce){
+void W10nJsonTransmitter::checkConstraintForW10nCompatibility(const string &ce)
+{
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::checkConstraintForW10nCompatibility() - BEGIN. ce:  "<< ce << endl);
 
-	string projectionClause = getProjectionClause(ce);
-	int firstComma = projectionClause.find(",");
+    string projectionClause = getProjectionClause(ce);
+    int firstComma = projectionClause.find(",");
 
-	if(firstComma != -1){
-		string msg = "The w10n protocol only allows one variable to be selected at a time. ";
-	    msg += "The constraint expression '" + ce + "' requests more than one.";
-	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::checkConstraintForW10nCompatibility() - ERROR! "<< msg << endl);
-		throw BESSyntaxUserError(msg , __FILE__, __LINE__);
-	}
+    if (firstComma != -1) {
+        string msg = "The w10n protocol only allows one variable to be selected at a time. ";
+        msg += "The constraint expression '" + ce + "' requests more than one.";
+        BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::checkConstraintForW10nCompatibility() - ERROR! "<< msg << endl);
+        throw BESSyntaxUserError(msg, __FILE__, __LINE__);
+    }
+
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::checkConstraintForW10nCompatibility() - END:  " << endl);
-
 }
 
 /**
  * Strips any selection clauses from the passed constraint expression and returns only the projection clause part.
  */
-string W10nJsonTransmitter::getProjectionClause(const string &constraintExpression){
-
-	string projectionClause = constraintExpression;
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::getProjectionClause() - constraintExpression: "<< constraintExpression << endl);
+string W10nJsonTransmitter::getProjectionClause(const string &constraintExpression)
+{
+    string projectionClause = constraintExpression;
+    BESDEBUG(W10N_DEBUG_KEY,
+        "W10nJsonTransmitter::getProjectionClause() - constraintExpression: "<< constraintExpression << endl);
 
     int firstAmpersand = constraintExpression.find("&");
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::getProjectionClause() - firstAmpersand: "<< firstAmpersand << endl);
-	if(firstAmpersand>=0)
-		projectionClause = constraintExpression.substr(0,firstAmpersand);
+    if (firstAmpersand >= 0) projectionClause = constraintExpression.substr(0, firstAmpersand);
 
-	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::getProjectionClause() - CE projection clause: "<< projectionClause << endl);
+    BESDEBUG(W10N_DEBUG_KEY,
+        "W10nJsonTransmitter::getProjectionClause() - CE projection clause: "<< projectionClause << endl);
 
-	return projectionClause;
+    return projectionClause;
 }
 
 /**
  * Strips any selection clauses from the passed constraint expression and returns only the projection clause part.
  */
-string W10nJsonTransmitter::getProjectedVariableName(const string &constraintExpression){
+string W10nJsonTransmitter::getProjectedVariableName(const string &constraintExpression)
+{
+    string varName = getProjectionClause(constraintExpression);
 
-	string varName = getProjectionClause(constraintExpression);
+    int firstSquareBracket = varName.find("[");
+    if (firstSquareBracket != -1) {
+        varName = varName.substr(0, firstSquareBracket);
+    }
 
-	int firstSquareBracket = varName.find("[");
-	if(firstSquareBracket != -1){
-		varName = varName.substr(0,firstSquareBracket);
-	}
-	return varName;
-
-
+    return varName;
 }
 
+struct ContextCleanup {
+    ContextCleanup() {}
+    ~ContextCleanup() { cerr << "Cleanup w10n contexts" << endl; W10nJsonTransmitter::cleanupW10nContexts(); }
+};
 
-
-
-
-/** @brief The static method registered to transmit OPeNDAP data objects as
+/**
+ *  @brief The static method registered to transmit OPeNDAP data objects as
  * a JSON file.
  *
  * This function takes the OPeNDAP DataDDS object, reads in the data (can be
@@ -181,132 +183,56 @@ string W10nJsonTransmitter::getProjectedVariableName(const string &constraintExp
  */
 void W10nJsonTransmitter::send_data(BESResponseObject *obj, BESDataHandlerInterface &dhi)
 {
-	BESStopWatch sw;
-	if (BESISDEBUG( TIMING_LOG ))
-		sw.start("W10nJsonTransmitter::send_data", dhi.data[REQUEST_ID]);
+#ifndef NDEBUG
+    BESStopWatch sw;
+    if (BESISDEBUG(TIMING_LOG)) sw.start("W10nJsonTransmitter::send_data", dhi.data[REQUEST_ID]);
+#endif
 
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - BEGIN." << endl);
 
-    BESDataDDSResponse *bdds = dynamic_cast<BESDataDDSResponse *>(obj);
-    if (!bdds) {
-    	string msg = "Dynamic cast of BESResponseObject to BESDataDDSResponse FAILED.";
-	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESInternalError(msg, __FILE__, __LINE__);
-    }
-
-    DDS *dds = bdds->get_dds();
-    if (!dds){
-    	string msg = "No DataDDS has been created for transmit";
-	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESInternalError(msg, __FILE__, __LINE__);
-    }
-
-    ostream &o_strm = dhi.get_output_stream();
-    if (!o_strm){
-    	string msg = "Output stream is not set, cannot return data as JSON";
-	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESInternalError(msg, __FILE__, __LINE__);
-    }
-
-
-
-    ConstraintEvaluator &eval = bdds->get_ce();
-
-
-    // ticket 1248 jhrg 2/23/09
-    string ce = www2id(dhi.data[POST_CONSTRAINT], "%", "%20%26");
-
-    checkConstraintForW10nCompatibility(ce);
+    // When 'cleanup' goes out of scope, cleanup the w10n contexts - incl. exceptions.
+    ContextCleanup cleanup;
 
     try {
-        BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - Parsing the constraint: "<< ce << endl);
-        eval.parse_constraint(ce, *dds);
+        BESDapResponseBuilder responseBuilder;
+
+        BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - reading data into DataDDS" << endl);
+
+        DDS *loaded_dds = responseBuilder.intern_dap2_data(obj, dhi);
+
+        checkConstraintForW10nCompatibility(dhi.data[POST_CONSTRAINT]);
+        w10n::checkConstrainedDDSForW10nDataCompatibility(loaded_dds);
+
+        ostream &o_strm = dhi.get_output_stream();
+        if (!o_strm) throw BESInternalError("Output stream is not set, can not return as JSON", __FILE__, __LINE__);
+
+        W10nJsonTransform ft(loaded_dds, dhi, &o_strm);
+
+        string varName = getProjectedVariableName(dhi.data[POST_CONSTRAINT]);
+
+        BESDEBUG(W10N_DEBUG_KEY,
+            "W10nJsonTransmitter::send_data() - Sending w10n data response for variable " << varName << endl);
+
+        ft.sendW10nDataForVariable(varName);
     }
     catch (Error &e) {
-    	string msg = "Failed to parse the constraint expression. Msg: "+ e.get_error_message();
-	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESDapError(msg, 0, e.get_error_code(),__FILE__, __LINE__);
-    }
-    catch (...) {
-    	string msg = "Failed to parse the constraint expression. Unknown exception caught";
-	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESInternalError(msg, __FILE__, __LINE__);
-    }
-
-    w10n::checkConstrainedDDSForW10nDataCompatibility(dds);
-
-
-    // now we need to read the data
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - reading data into DataDDS" << endl);
-
-    try {
-        // Handle *functional* constraint expressions specially
-        if (eval.function_clauses()) {
-            BESDEBUG(W10N_DEBUG_KEY, "processing a functional constraint clause(s)." << endl);
-            DDS *tmp_dds = eval.eval_function_clauses(*dds);
-            bdds->set_dds(tmp_dds);
-            delete dds;
-            dds = tmp_dds;
-        }
-        else {
-            // Iterate through the variables in the DataDDS and read
-            // in the data if the variable has the send flag set.
-            for (DDS::Vars_iter i = dds->var_begin(); i != dds->var_end(); i++) {
-                if ((*i)->send_p()) {
-                    (*i)->intern_data(eval, *dds);
-                }
-            }
-        }
-    }
-    catch (Error &e) {
-    	string msg = "Failed to read data! Msg: " + e.get_error_message();
-	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESDapError(msg, 0, e.get_error_code(),__FILE__, __LINE__);
-    }
-    catch (BESError &e){
-        throw;
-    }
-    catch (...) {
-    	string msg = "Failed to read data: Unknown exception caught";
-	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESInternalError(msg, __FILE__, __LINE__);
-    }
-
-    try {
-
-
-        W10nJsonTransform ft(dds, dhi, &o_strm);
-
-        string varName = getProjectedVariableName(ce);
-
-        BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_metadata() - Sending w10n meta response for variable "
-        		<< varName << endl);
-    	ft.sendW10nDataForVariable(varName);
-    }
-    catch (Error &e) {
-        string msg = "Failed to transmit data as w10n JSON. Msg: " + e.get_error_message();
-        BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESDapError(msg, 0, e.get_error_code(),__FILE__, __LINE__);
+        throw BESDapError("Failed to read data! Msg: " + e.get_error_message(), false, e.get_error_code(),
+        __FILE__, __LINE__);
     }
     catch (BESError &e) {
-    	string msg = "Failed to transmit data as w10n JSON. Msg: " + e.get_message();
-	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
         throw;
     }
     catch (...) {
-    	string msg = "Failed to transmit data as w10n JSON. Unknown Error.";
-	    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESInternalError(msg, __FILE__, __LINE__);
+        throw BESInternalError("Failed to read data: Unknown exception caught", __FILE__, __LINE__);
     }
 
-    cleanupW10nContexts();
+    // cleanupW10nContexts(); See above where an instance
 
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - END. Done transmitting JSON" << endl);
 }
 
-
-
-/** @brief The static method registered to transmit OPeNDAP data objects as
+/**
+ * @brief The static method registered to transmit OPeNDAP data objects as
  * a JSON file.
  *
  * This function takes the OPeNDAP DataDDS object, reads in the data (can be
@@ -323,25 +249,23 @@ void W10nJsonTransmitter::send_data(BESResponseObject *obj, BESDataHandlerInterf
  */
 void W10nJsonTransmitter::send_metadata(BESResponseObject *obj, BESDataHandlerInterface &dhi)
 {
-	BESStopWatch sw;
-	if (BESISDEBUG( TIMING_LOG ))
-		sw.start("W10nJsonTransmitter::send_metadata", dhi.data[REQUEST_ID]);
+#ifndef NDEBUG
+    BESStopWatch sw;
+    if (BESISDEBUG(TIMING_LOG)) sw.start("W10nJsonTransmitter::send_metadata", dhi.data[REQUEST_ID]);
+#endif
+
+    ContextCleanup cleanup;
 
     BESDDSResponse *bdds = dynamic_cast<BESDDSResponse *>(obj);
-    if (!bdds)
-        throw BESInternalError("cast error", __FILE__, __LINE__);
+    if (!bdds) throw BESInternalError("cast error", __FILE__, __LINE__);
 
     DDS *dds = bdds->get_dds();
-    if (!dds)
-        throw BESInternalError("No DDS has been created for transmit", __FILE__, __LINE__);
-
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_metadata() - parsing the constraint" << endl);
+    if (!dds) throw BESInternalError("No DDS has been created for transmit", __FILE__, __LINE__);
 
     ConstraintEvaluator &eval = bdds->get_ce();
 
     ostream &o_strm = dhi.get_output_stream();
-    if (!o_strm)
-        throw BESInternalError("Output stream is not set, can not return as JSON", __FILE__, __LINE__);
+    if (!o_strm) throw BESInternalError("Output stream is not set, can not return as JSON", __FILE__, __LINE__);
 
     // ticket 1248 jhrg 2/23/09
     string ce = www2id(dhi.data[POST_CONSTRAINT], "%", "%20%26");
@@ -352,95 +276,43 @@ void W10nJsonTransmitter::send_metadata(BESResponseObject *obj, BESDataHandlerIn
         eval.parse_constraint(ce, *dds);
     }
     catch (Error &e) {
-        string msg = "Failed to parse the constraint expression. Msg: "+ e.get_error_message();
-        BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_data() - ERROR! "<< msg << endl);
-        throw BESDapError(msg, false, e.get_error_code(),__FILE__, __LINE__);
+        throw BESDapError("Failed to parse the constraint expression: " + e.get_error_message(), false,
+            e.get_error_code(), __FILE__, __LINE__);
     }
     catch (...) {
-        throw BESInternalError("Failed to parse the constraint expression: Unknown exception caught", __FILE__, __LINE__);
+        throw BESInternalError("Failed to parse the constraint expression: Unknown exception caught", __FILE__,
+            __LINE__);
     }
 
-
-	W10nJsonTransform ft(dds, dhi, &o_strm);
+    W10nJsonTransform ft(dds, dhi, &o_strm);
 
     string varName = getProjectedVariableName(ce);
 
-    if(varName.length() == 0){
+    if (varName.length() == 0) {
         BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_metadata() - Sending w10n meta response for DDS" << endl);
-    	ft.sendW10nMetaForDDS();
+        ft.sendW10nMetaForDDS();
     }
     else {
-        BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_metadata() - Sending w10n meta response for variable "
-        		<< varName << endl);
-    	ft.sendW10nMetaForVariable(varName, true);
+        BESDEBUG(W10N_DEBUG_KEY,
+            "W10nJsonTransmitter::send_metadata() - Sending w10n meta response for variable " << varName << endl);
+        ft.sendW10nMetaForVariable(varName, true);
     }
-
-    cleanupW10nContexts();
 
     BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::send_metadata() - done transmitting JSON" << endl);
 }
 
-/** @brief stream the temporary netcdf file back to the requester
- *
- * Streams the temporary netcdf file specified by filename to the specified
- * C++ ostream
- *
- * @param filename The name of the file to stream back to the requester
- * @param strm C++ ostream to write the contents of the file to
- * @throws BESInternalError if problem opening the file
+/**
+ * Cleanup the special contexts set by w10n. If left around, these will interfere with other commands.
  */
-void W10nJsonTransmitter::return_temp_stream(const string &filename, ostream &strm)
-{
-    //  int bytes = 0 ;    // Not used; jhrg 3/16/11
-    ifstream os;
-    os.open(filename.c_str(), ios::binary | ios::in);
-    if (!os) {
-        string err = "Can not connect to file " + filename;
-        BESInternalError pe(err, __FILE__, __LINE__);
-        throw pe;
-    }
-    int nbytes;
-    char block[4096];
-
-    os.read(block, sizeof block);
-    nbytes = os.gcount();
-    if (nbytes > 0) {
-        strm.write(block, nbytes);
-        //bytes += nbytes ;
-    }
-    else {
-        // close the stream before we leave.
-        os.close();
-
-        string err = (string) "0XAAE234F: failed to stream. Internal server "
-                + "error, got zero count on stream buffer." + filename;
-        BESInternalError pe(err, __FILE__, __LINE__);
-        throw pe;
-    }
-    while (os) {
-        os.read(block, sizeof block);
-        nbytes = os.gcount();
-        strm.write(block, nbytes);
-        //write( fileno( stdout ),(void*)block, nbytes ) ;
-        //bytes += nbytes ;
-    }
-    os.close();
-}
-
-
-
 void W10nJsonTransmitter::cleanupW10nContexts()
 {
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::cleanupW10nContexts() - Removing context" << W10N_META_OBJECT_KEY << endl);
-	BESContextManager::TheManager()->unset_context(W10N_META_OBJECT_KEY);
+    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::cleanupW10nContexts() - Removing contexts" << endl);
 
-	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::cleanupW10nContexts() - Removing context" << W10N_CALLBACK_KEY << endl);
-	BESContextManager::TheManager()->unset_context(W10N_CALLBACK_KEY);
+    BESContextManager::TheManager()->unset_context(W10N_META_OBJECT_KEY);
 
-	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::cleanupW10nContexts() - Removing context" << W10N_FLATTEN_KEY << endl);
-	BESContextManager::TheManager()->unset_context(W10N_FLATTEN_KEY);
+    BESContextManager::TheManager()->unset_context(W10N_CALLBACK_KEY);
 
-	BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransmitter::cleanupW10nContexts() - Removing context" << W10N_TRAVERSE_KEY << endl);
-	BESContextManager::TheManager()->unset_context(W10N_TRAVERSE_KEY);
+    BESContextManager::TheManager()->unset_context(W10N_FLATTEN_KEY);
 
+    BESContextManager::TheManager()->unset_context(W10N_TRAVERSE_KEY);
 }

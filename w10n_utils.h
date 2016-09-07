@@ -28,8 +28,6 @@
 #ifndef E_w10n_util_h
 #define E_w10n_util_h 1
 
-
-
 #include <string>
 #include <list>
 #include <iostream>
@@ -38,33 +36,24 @@
 #include <Array.h>
 #include <Constructor.h>
 
-using std::string ;
-using std::list ;
-using std::ostream ;
+using std::string;
+using std::list;
+using std::ostream;
 
 namespace w10n {
-    /** Check if the specified path is valid **/
-    void eval_resource_path(
-    					const string &w10nResourceId,
-					    const string &catalogRoot,
-					    const bool follow_sym_links,
-						string &validPath,
-						bool &isFile,
-						bool &isDir,
-						string &remainder
-						);
+/** Check if the specified path is valid **/
+void eval_resource_path(const string &w10nResourceId, const string &catalogRoot, const bool follow_sym_links,
+    string &validPath, bool &isFile, bool &isDir, string &remainder);
 
+std::string escape_for_json(const std::string& input);
 
-    std::string escape_for_json(const std::string& input);
+// std::string backslash_escape(std::string source, char char_to_escape);
 
-    // std::string backslash_escape(std::string source, char char_to_escape);
-
-    long computeConstrainedShape(libdap::Array *a, std::vector<unsigned int> *shape );
-    void checkConstructorForW10nDataCompatibility(libdap::Constructor *constructor);
-    void checkConstrainedDDSForW10nDataCompatibility(libdap::DDS *dds);
-    bool allVariablesMarkedToSend(libdap::DDS *dds);
-    bool allVariablesMarkedToSend(libdap::Constructor *ctor);
-
+long computeConstrainedShape(libdap::Array *a, std::vector<unsigned int> *shape);
+void checkConstructorForW10nDataCompatibility(libdap::Constructor *constructor);
+void checkConstrainedDDSForW10nDataCompatibility(libdap::DDS *dds);
+bool allVariablesMarkedToSend(libdap::DDS *dds);
+bool allVariablesMarkedToSend(libdap::Constructor *ctor);
 
 } // namespace w10n
 

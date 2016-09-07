@@ -62,18 +62,16 @@ using std::istringstream;
  *  @TODO Handle String and URL Arrays including backslash escaping double quotes in values.
  *
  */
-template<typename T> unsigned int W10nJsonTransform::json_simple_type_array_worker(ostream *strm, T *values,
+template<typename T>
+unsigned int W10nJsonTransform::json_simple_type_array_worker(ostream *strm, T *values,
     unsigned int indx, vector<unsigned int> *shape, unsigned int currentDim, bool flatten)
 {
-
     if (currentDim == 0 || !flatten) *strm << "[";
 
     unsigned int currentDimSize = (*shape)[currentDim];
 
     for (unsigned int i = 0; i < currentDimSize; i++) {
         if (currentDim < shape->size() - 1) {
-            BESDEBUG(W10N_DEBUG_KEY,
-                "json_simple_type_array_worker() - Recursing! indx:  " << indx << " currentDim: " << currentDim << " currentDimSize: " << currentDimSize << endl);
             indx = json_simple_type_array_worker<T>(strm, values, indx, shape, currentDim + 1, flatten);
             if (i + 1 != currentDimSize) *strm << ", ";
         }
@@ -81,7 +79,8 @@ template<typename T> unsigned int W10nJsonTransform::json_simple_type_array_work
             if (i) *strm << ", ";
             if (typeid(T) == typeid(std::string)) {
                 // Strings need to be escaped to be included in a JSON object.
-                std::string val = ((std::string *) values)[indx++];
+                // std::string val = ((std::string *) values)[indx++]; replaced w/below jhrg 9/7/16
+                std::string val = reinterpret_cast<std::string*>(values)[indx++];
                 *strm << "\"" << w10n::escape_for_json(val) << "\"";
             }
             else {
@@ -213,72 +212,9 @@ void W10nJsonTransform::json_string_array_sender(ostream *strm, libdap::Array *a
  */
 template<typename T> void W10nJsonTransform::json_simple_type_array(ostream *strm, libdap::Array *a, std::string indent)
 {
-
-#if 0
-    bool found_w10n_meta_object = false;
-    string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_meta_object: "<< w10n_meta_object << endl);
-
-    bool found_w10n_callback = false;
-    string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_callback: "<< w10n_callback << endl);
-
-    bool found_w10n_flatten = false;
-    string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - w10n_flatten: "<< w10n_flatten << endl);
-
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - Processing Array of " << a->var()->type_name() << endl);
-
-    if(found_w10n_callback) {
-        *strm << w10n_callback << "(";
-    }
-
-    *strm << "{" << endl;
-
-    string child_indent = indent + _indent_increment;
-
-    int numDim = a->dimensions(true);
-    vector<unsigned int> shape(numDim);
-    long length = w10n::computeConstrainedShape(a, &shape);
-
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - Writing variable metadata..." << endl);
-
-    writeVariableMetadata(strm,a,child_indent);
-    *strm << "," << endl;
-
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array() - Writing variable data..." << endl);
-
-    // Data
-    *strm << child_indent << "\"data\": ";
-    unsigned int indx;
-
-    T *src = new T[length];
-    a->value(src);
-    indx = json_simple_type_array_worker(strm, src, 0, &shape, 0, found_w10n_flatten);
-    delete src;
-
-    if(length != indx)
-    BESDEBUG(W10N_DEBUG_KEY, "json_simple_type_array() - indx NOT equal to content length! indx:  " << indx << "  length: " << length << endl);
-
-    if(found_w10n_meta_object)
-    *strm << "," << endl << child_indent << w10n_meta_object << endl;
-    else
-    *strm << endl;
-
-    *strm << indent << "}" << endl;
-
-    if(found_w10n_callback) {
-        *strm << ")";
-    }
-
-    *strm << endl;
-
-#endif
-
     json_array_starter(strm, a, indent);
     json_simple_type_array_sender<T>(strm, a);
     json_array_ender(strm, indent);
-
 }
 
 /**
@@ -287,72 +223,9 @@ template<typename T> void W10nJsonTransform::json_simple_type_array(ostream *str
  */
 void W10nJsonTransform::json_string_array(ostream *strm, libdap::Array *a, std::string indent)
 {
-
-#if 0
-    bool found_w10n_meta_object = false;
-    string w10n_meta_object = BESContextManager::TheManager()->get_context(W10N_META_OBJECT_KEY,found_w10n_meta_object);
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - w10n_meta_object: "<< w10n_meta_object << endl);
-
-    bool found_w10n_callback = false;
-    string w10n_callback = BESContextManager::TheManager()->get_context(W10N_CALLBACK_KEY,found_w10n_callback);
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - w10n_callback: "<< w10n_callback << endl);
-
-    bool found_w10n_flatten = false;
-    string w10n_flatten = BESContextManager::TheManager()->get_context(W10N_FLATTEN_KEY,found_w10n_flatten);
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - w10n_flatten: "<< w10n_flatten << endl);
-
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - Processing Array of " << a->var()->type_name() << endl);
-
-    if(found_w10n_callback) {
-        *strm << w10n_callback << "(";
-    }
-
-    *strm << "{" << endl;
-
-    string child_indent = indent + _indent_increment;
-
-    int numDim = a->dimensions(true);
-    vector<unsigned int> shape(numDim);
-    long length = w10n::computeConstrainedShape(a, &shape);
-
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - Writing variable metadata..." << endl);
-
-    writeVariableMetadata(strm,a,child_indent);
-    *strm << "," << endl;
-
-    BESDEBUG(W10N_DEBUG_KEY, "W10nJsonTransform::json_simple_type_array_string() - Writing variable data..." << endl);
-
-    // Data
-    *strm << child_indent << "\"data\": ";
-    unsigned int indx;
-
-    // The string type utilizes a specialized version of libdap:Array.value()
-    vector<std::string> sourceValues;
-    a->value(sourceValues);
-    indx = json_simple_type_array_worker(strm, (std::string *)(&sourceValues[0]), 0, &shape, 0, found_w10n_flatten);
-
-    if(length != indx)
-    BESDEBUG(W10N_DEBUG_KEY, "json_simple_type_array_string() - indx NOT equal to content length! indx:  " << indx << "  length: " << length << endl);
-
-    if(found_w10n_meta_object)
-    *strm << "," << endl << child_indent << w10n_meta_object << endl;
-    else
-    *strm << endl;
-
-    *strm << indent << "}" << endl;
-
-    if(found_w10n_callback) {
-        *strm << ")";
-    }
-
-    *strm << endl;
-
-#endif
-
     json_array_starter(strm, a, indent);
     json_string_array_sender(strm, a);
     json_array_ender(strm, indent);
-
 }
 
 /**
@@ -360,14 +233,12 @@ void W10nJsonTransform::json_string_array(ostream *strm, libdap::Array *a, std::
  */
 void W10nJsonTransform::writeDatasetMetadata(ostream *strm, libdap::DDS *dds, std::string indent)
 {
-
     // Name
     *strm << indent << "\"name\": \"" << dds->get_dataset_name() << "\"," << endl;
 
     //Attributes
     writeAttributes(strm, dds->get_attr_table(), indent);
     *strm << "," << endl;
-
 }
 
 /**
@@ -1056,6 +927,5 @@ void W10nJsonTransform::sendW10nData(ostream *strm, libdap::Array *a, std::strin
     }
 
     }
-
 }
 
