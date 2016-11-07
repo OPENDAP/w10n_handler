@@ -162,7 +162,10 @@ string W10nJsonTransmitter::getProjectedVariableName(const string &constraintExp
 
 struct ContextCleanup {
     ContextCleanup() {}
-    ~ContextCleanup() { cerr << "Cleanup w10n contexts" << endl; W10nJsonTransmitter::cleanupW10nContexts(); }
+    ~ContextCleanup() {
+    	BESDEBUG(W10N_DEBUG_KEY, "Cleanup w10n contexts" << endl);
+    	W10nJsonTransmitter::cleanupW10nContexts();
+    }
 };
 
 /**
