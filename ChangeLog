@@ -1,3 +1,14 @@
+2016-11-07  ndp-opendap  <ndp@opendap.org>
+
+	Repaired leak on stderr.
+
+2016-11-02  James Gallagher  <jgallagher@opendap.org>
+
+	Hyrax 1.13.2
+
+2016-09-27  James Gallagher  <jgallagher@opendap.org>
+
+	Change file modes - no longer executable
 2016-09-27  James Gallagher  <jgallagher@opendap.org>
 
 	Change file modes - no longer executable
